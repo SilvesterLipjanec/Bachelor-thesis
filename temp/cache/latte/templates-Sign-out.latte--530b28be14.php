@@ -1,9 +1,9 @@
 <?php
-// source: /var/www/html/BP/app/presenters/templates/Sign/in.latte
+// source: /var/www/html/BP/app/presenters/templates/Sign/out.latte
 
 use Latte\Runtime as LR;
 
-class Template2a8a7b2ac5 extends Latte\Runtime\Template
+class Template530b28be14 extends Latte\Runtime\Template
 {
 	public $blocks = [
 		'content' => 'blockContent',
@@ -39,13 +39,7 @@ class Template2a8a7b2ac5 extends Latte\Runtime\Template
 		$this->renderBlock('subtitle', get_defined_vars());
 ?>
 
-<?php
-		/* line 4 */ $_tmp = $this->global->uiControl->getComponent("signInForm");
-		if ($_tmp instanceof Nette\Application\UI\IRenderable) $_tmp->redrawControl(NULL, FALSE);
-		$_tmp->render();
-?>
-
-<p><a href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("up")) ?>">Ešte nie ste registrovaný? Registrujte sa tu.</a></p>
+<p><a href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("in")) ?>">Prihlásiť sa pomocou iného účtu.</a></p>
 <?php
 	}
 
@@ -53,7 +47,7 @@ class Template2a8a7b2ac5 extends Latte\Runtime\Template
 	function blockSubtitle($_args)
 	{
 		extract($_args);
-?><h2>Prihlásenie</h2>
+?><h2>Boli ste odhlásený</h2>
 <?php
 	}
 

@@ -1,9 +1,9 @@
 <?php
-// source: /var/www/html/BP/app/presenters/templates/Homepage/default.latte
+// source: /var/www/html/BP/app/presenters/templates/Homepage/info.latte
 
 use Latte\Runtime as LR;
 
-class Template5709f7a981 extends Latte\Runtime\Template
+class Template3012ad532d extends Latte\Runtime\Template
 {
 	public $blocks = [
 		'content' => 'blockContent',
@@ -35,20 +35,17 @@ class Template5709f7a981 extends Latte\Runtime\Template
 	{
 		extract($_args);
 ?>
-<div id=introduction>
-	<h2>Otestujte svoju tlačiareň</h2>
-	<p>Metóda Print & Scan umožnuje jednoducho a rýchlo otestovať kvalitu vašej tlačiarne iba v troch krokoch</p>
-	<ol class = "menu">
-			<li>Stiahnite si farebný vzor </li>
-			<li>Vytlačte a následne naskenujte farebný vzor</li>
-			<li>Uložte výsledný sken na stránku a zistite výsledok</li>
-	</ol>
-</div>
+
+<h2>3. krok</h2>
+<h3>Zadajte informácie o tlačiarni</h3>
+
+	
 <?php
-		/* line 13 */ $_tmp = $this->global->uiControl->getComponent("nextForm");
+		/* line 7 */ $_tmp = $this->global->uiControl->getComponent("newSetForm");
 		if ($_tmp instanceof Nette\Application\UI\IRenderable) $_tmp->redrawControl(NULL, FALSE);
 		$_tmp->render();
 ?>
+<progress max="100" value="66"></progress>
 
 
 

@@ -17,14 +17,14 @@
 	</div>
 	<div id="head">
 		<ul class = "menu">
-			<li><a n:href = "Homepage:default">Home</a></li>
-			<li><a n:href = "Homepage:help">Návod</a></li>
-			<li><a n:href = "Homepage:help">Štatistiky</a></li>
-			<li><a n:href = "Homepage:help">Moje testy</a></li>
+			<li><a n:href = "Homepage:default">Návod</a></li>
+			<li><a n:href = "Homepage:download">Otestovať tlačiareň</a></li>
+			<li><a n:href = "Stats:stats">Štatistiky</a></li>
+			<li><a n:href = "Stats:mytests">Moje testy</a></li>
 			{if $user->isLoggedIn()}
-				<li><a n:href = "Homepage:help">Odhlásiť sa</a></li>
+				<li><a n:href = "Sign:out">Odhlásiť sa</a></li>
 			{else}
-				<li><a n:href = "Homepage:help">Prihlásiť sa</a></li>						
+				<li><a n:href = "Sign:in">Prihlásiť sa</a></li>						
 			{/if}
 
 		</ul>	

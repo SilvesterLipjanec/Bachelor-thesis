@@ -1,16 +1,18 @@
 <?php
-// source: /var/www/html/BP/app/presenters/templates/Homepage/default.latte
+// source: /var/www/html/BP/app/presenters/templates/Sign/up.latte
 
 use Latte\Runtime as LR;
 
-class Template5709f7a981 extends Latte\Runtime\Template
+class Template689cecbd51 extends Latte\Runtime\Template
 {
 	public $blocks = [
 		'content' => 'blockContent',
+		'subtitle' => 'blockSubtitle',
 	];
 
 	public $blockTypes = [
 		'content' => 'html',
+		'subtitle' => 'html',
 	];
 
 
@@ -34,25 +36,24 @@ class Template5709f7a981 extends Latte\Runtime\Template
 	function blockContent($_args)
 	{
 		extract($_args);
+		$this->renderBlock('subtitle', get_defined_vars());
 ?>
-<div id=introduction>
-	<h2>Otestujte svoju tlačiareň</h2>
-	<p>Metóda Print & Scan umožnuje jednoducho a rýchlo otestovať kvalitu vašej tlačiarne iba v troch krokoch</p>
-	<ol class = "menu">
-			<li>Stiahnite si farebný vzor </li>
-			<li>Vytlačte a následne naskenujte farebný vzor</li>
-			<li>Uložte výsledný sken na stránku a zistite výsledok</li>
-	</ol>
-</div>
+
 <?php
-		/* line 13 */ $_tmp = $this->global->uiControl->getComponent("nextForm");
+		/* line 4 */ $_tmp = $this->global->uiControl->getComponent("signUpForm");
 		if ($_tmp instanceof Nette\Application\UI\IRenderable) $_tmp->redrawControl(NULL, FALSE);
 		$_tmp->render();
 ?>
 
+<p><a href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("in")) ?>">Už ste registrovaný? Prihláste sa.</a></p>
+<?php
+	}
 
 
-
+	function blockSubtitle($_args)
+	{
+		extract($_args);
+?><h2>Registrácia</h2>
 <?php
 	}
 

@@ -19,7 +19,16 @@ class DatabaseRepository
 	{
 		$this->database = $database;
 	}
-	public function insert
+	public function findTestSetForUser($id_user)
+	{
+		$test_sets = $this->database->table('User_test_sets')->where('id_user',$id_user);
+		$sets = array();
+		foreach ($test_sets as $set) {
+			$sada = $set->id_set.' - '.$set->producer.', '.$set->model.', '.$set->note;
+			$sets[$set->id_set] = $sada;
+		}
+		return $sets;
+	}
 
 
 }

@@ -34,7 +34,9 @@ class SignPresenter extends BasePresenter
 	protected function createComponentSignUpForm()
 	{
 		return $this->signUpFactory->create(function () {
-			$this->redirect('Homepage:');
+			$this->flashMessage('Registrácia prebiehla úspešne. Môžete sa prihlásiť.');
+			$this->redirect('Sign:in');
+			
 		});
 	}
 

@@ -93,17 +93,17 @@ class Template57acfbc81a extends Latte\Runtime\Template
 	</div>
 	<div id="head">
 		<ul class = "menu">
-			<li><a href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Homepage:default")) ?>">Home</a></li>
-			<li><a href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Homepage:help")) ?>">Návod</a></li>
-			<li><a href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Homepage:help")) ?>">Štatistiky</a></li>
-			<li><a href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Homepage:help")) ?>">Moje testy</a></li>
+			<li><a href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Homepage:default")) ?>">Návod</a></li>
+			<li><a href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Homepage:download")) ?>">Otestovať tlačiareň</a></li>
+			<li><a href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Stats:stats")) ?>">Štatistiky</a></li>
+			<li><a href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Stats:mytests")) ?>">Moje testy</a></li>
 <?php
 		if ($user->isLoggedIn()) {
-			?>				<li><a href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Homepage:help")) ?>">Odhlásiť sa</a></li>
+			?>				<li><a href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Sign:out")) ?>">Odhlásiť sa</a></li>
 <?php
 		}
 		else {
-			?>				<li><a href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Homepage:help")) ?>">Prihlásiť sa</a></li>						
+			?>				<li><a href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Sign:in")) ?>">Prihlásiť sa</a></li>						
 <?php
 		}
 ?>

@@ -12,6 +12,12 @@ class HomepagePresenter extends BasePresenter
 
 	const UPLOAD_DIR = './data/';
 	const ANALYZE_DIR = './analyze/';
+	private $database;
+
+	public function __construct(Model\DatabaseRepository $database)
+	{
+		$this->database = $database;
+	}
 	public function renderDefault()
 	{
 		$this->template->anyVariable = 'any value';
@@ -39,20 +45,23 @@ class HomepagePresenter extends BasePresenter
 		return $form;
 	}
 	public function downloadClicked(Form $form)
-	{
+	{	
 		switch ($form->values['width'])
 		{
 			
 			case 2:
 				 $this->sendResponse(new Nette\Application\Responses\FileResponse('./ref_data/RGB2.pdf'));
-				 break;
+				break;
 			case 3:
 				$this->sendResponse(new Nette\Application\Responses\FileResponse('./ref_data/RGB3.pdf'));
 				break;
 			case 4:
 				$this->sendResponse(new Nette\Application\Responses\FileResponse('./ref_data/RGB4.pdf'));
 				break;
-		}		
+		}
+		$this->redirect('Homepage:upload');	
+		
+			
 	}
 
 	public function saveUploadClicked(Form $form)
@@ -102,7 +111,10 @@ class HomepagePresenter extends BasePresenter
 		    	exec('rm '.$file_alg_pos);
 		    }
 		    $this->insertResult($file_txt_pos);
-
+		    if($this->getUser()->isLoggedIn())
+		    	$this->redirect("Homepage:testset");
+		    else
+		    	$this->redirect("Homepage:info");
 		}
 	    else //nepodporovany format suboru
 	    {
@@ -128,6 +140,90 @@ class HomepagePresenter extends BasePresenter
 
 		fclose($myfile);
 
+	}
+	public function createComponentNextForm()
+	{	
+		
+
+		$form = new Form;
+		if($this->getView() == 'default')
+		{
+			$form->addSubmit("gotest","Otestovať tlačiareň");
+		}
+		else
+		{
+			$form->addSubmit("next","Pokračovať");
+		}
+
+		$form->onSuccess[] = array($this, 'goNext');
+	  	return $form;
+	}
+	public function goNext()
+	{
+		switch ($this->getView()) {
+			case 'default':
+				$this->redirect('Homepage:download');		
+				break;
+			case 'download':
+				$this->redirect('Homepage:upload');
+				break;
+			case 'upload':
+				$this->redirect('Homepage:info');
+				break;
+		}
+	}
+	public function createNewTestSet()
+	{	
+		//echo('tu som');
+	 	$this->redirect('Homepage:newtestset');
+	}
+	public function createComponentNewSetForm()
+	{
+		$form = new Form;
+		$form->addText('producer','Výrobca:')
+			->SetRequired('Prosím zadajte výrobcu tlačiarne.');
+		$form->addText('model','Model:')
+			->SetRequired('Prosím zadajte model tlačiarne.');
+		$typ_tlaciarne = array(
+			'laser' =>	'laserová',
+			'ink' => 'atramentová',
+			'oth' => 'iná'
+		);
+		//var_dump($this->database->findTestSetForUser($id_user)->id_set);
+		
+		$form->addSelect('typ', 'Typ tlačiarne:', $typ_tlaciarne);
+		$form->addText('print_res','Rozlíšenie tlačiarne:')
+			->SetRequired(FALSE)
+			->addRule(Form::INTEGER);
+		$form->addText('scan_res','Rozlíšenie skenera:')
+			->SetRequired(FALSE)
+			->addRule(Form::INTEGER);
+		$form->addTextArea('note', 'Poznámka:')
+			->SetRequired(FALSE)
+		    ->addRule(Form::MAX_LENGTH, 'Your note is way too long', 4000);
+
+		$form->addSubmit('save','Uložiť a pokračovať');
+		$form->onSuccess[] = array($this,'infoFormSuccedeed' );
+			
+		return $form;		
+	}
+	public function createComponentSetForm()
+	{
+		$id_user = $this->getUser()->getIdentity()->id_user;
+		$form = new Form;
+		$form->addSelect('test_set','Zaradiť do testovacej sady:',$this->database->findTestSetForUser($id_user));
+		$form->addSubmit('use_set','Vybrať sadu')
+			->onClick[] = array($this,'infoFormSuccedeed' );
+		$form->addSubmit('new_set', 'Vytvoriť novú testovaciu sadu')
+    		 ->onClick[] = array($this,'createNewTestSet');
+    	
+    	
+		return $form;
+	}
+	
+	public function infoFormSuccedeed()
+	{
+		$this->redirect('Homepage:result');
 	}
 
 }
