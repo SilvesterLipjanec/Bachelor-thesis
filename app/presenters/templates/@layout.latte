@@ -11,13 +11,33 @@
 
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="{$basePath}/css/style.css">
-	{block head}{/block}
+	{block head}
+	<div id="banner">
+	<h1 n:block=title>Print & Scan</h1>
+	</div>
+	<div id="head">
+		<ul class = "menu">
+			<li><a n:href = "Homepage:default">Home</a></li>
+			<li><a n:href = "Homepage:help">Návod</a></li>
+			<li><a n:href = "Homepage:help">Štatistiky</a></li>
+			<li><a n:href = "Homepage:help">Moje testy</a></li>
+			{if $user->isLoggedIn()}
+				<li><a n:href = "Homepage:help">Odhlásiť sa</a></li>
+			{else}
+				<li><a n:href = "Homepage:help">Prihlásiť sa</a></li>						
+			{/if}
+
+		</ul>	
+	</div>
+	{/block}
 	
 </head>
 
 <body>
 	<div n:foreach="$flashes as $flash" n:class="flash, $flash->type">{$flash->message}</div>
+	
 
+	
 	{include content}
 
 	{block scripts}

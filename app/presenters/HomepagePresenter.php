@@ -10,8 +10,8 @@ use Nette\Application\UI\Form;
 class HomepagePresenter extends BasePresenter
 {
 
-	const UPLOAD_DIR = __DIR__.'/../../data/';
-	const ANALYZE_DIR = __DIR__.'/../../analyze/';
+	const UPLOAD_DIR = './data/';
+	const ANALYZE_DIR = './analyze/';
 	public function renderDefault()
 	{
 		$this->template->anyVariable = 'any value';
@@ -44,13 +44,13 @@ class HomepagePresenter extends BasePresenter
 		{
 			
 			case 2:
-				 $this->sendResponse(new Nette\Application\Responses\FileResponse('../data/RGB2.pdf'));
+				 $this->sendResponse(new Nette\Application\Responses\FileResponse('./ref_data/RGB2.pdf'));
 				 break;
 			case 3:
-				$this->sendResponse(new Nette\Application\Responses\FileResponse('../data/RGB3.pdf'));
+				$this->sendResponse(new Nette\Application\Responses\FileResponse('./ref_data/RGB3.pdf'));
 				break;
 			case 4:
-				$this->sendResponse(new Nette\Application\Responses\FileResponse('../data/RGB4.pdf'));
+				$this->sendResponse(new Nette\Application\Responses\FileResponse('./ref_data/RGB4.pdf'));
 				break;
 		}		
 	}
@@ -71,17 +71,17 @@ class HomepagePresenter extends BasePresenter
 	    {
 
 	    	$file_id = uniqid(rand(0,20), TRUE);
-	    	echo($file_id);
+	    	
 	    	$file_name = $file_id.$file_ext;
 		    // přesunutí souboru z temp složky někam, kam nahráváš soubory
-		    $file->move(self::UPLOAD_DIR . $file_name);
 		    $file_pos = self::UPLOAD_DIR . $file_name;
+		    $file->move($file_pos);
 		    $file_ppm = $file_id . '.ppm';
-		    $file_ppm_pos = self::ANALYZE_DIR . $file_id . '.ppm';
-		    
-		    if($file_ext == '.jpg')
-		    {
-		    	//echo('')
+		    $file_ppm_pos = self::UPLOAD_DIR . $file_id . '.ppm';
+		    $file_alg_pos = self::UPLOAD_DIR . 'alg_' . $file_ppm;
+		    $file_txt_pos = self::UPLOAD_DIR . $file_id . '.txt';
+		    if($file_ext == '.jpg')		    {
+		    	
 		    	exec('jpegtopnm '.$file_pos.' > '.$file_ppm_pos);
 		    }
 		    elseif ($file_ext == '.pdf')
@@ -92,9 +92,17 @@ class HomepagePresenter extends BasePresenter
 		    {
 		   		exec('tifftopnm '.$file_pos.' > '.$file_ppm_pos);
 		    }
-		    exec(self::ANALYZE_DIR.'analyze '.$file_ppm);
-		    //exec('rm '.$file_ppm);
-		    exec('rm '.$file_pos);	    
+
+		    //cesta k datam relativna od priecinka v ktorom je umiestneny analyzator
+		    exec(self::ANALYZE_DIR.'analyze '.$file_ppm_pos);
+		    exec('rm '.$file_ppm_pos);
+		    exec('rm '.$file_pos);
+		    if(file_exists($file_alg_pos))
+		    {
+		    	exec('rm '.$file_alg_pos);
+		    }
+		    $this->insertResult($file_txt_pos);
+
 		}
 	    else //nepodporovany format suboru
 	    {
@@ -102,6 +110,24 @@ class HomepagePresenter extends BasePresenter
 	    }   
 
 	  }
+	  else
+	  {
+	  	$this->flashMessage('Súbor sa nepodarilo nahrať');
+	  }
+	}
+	public function insertResult($file)
+	{
+		$myfile = fopen($file,'rb');
+		if(!$myfile)
+		{
+			$this->flashMessage('Vyskytla sa chyba pri otváraní súboru!');
+			exit(1);
+		}
+		fscanf($myfile , "%f %f %f",$r,$g,$b);
+		
+
+		fclose($myfile);
+
 	}
 
 }

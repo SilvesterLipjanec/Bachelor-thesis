@@ -7,12 +7,10 @@ class Template5709f7a981 extends Latte\Runtime\Template
 {
 	public $blocks = [
 		'content' => 'blockContent',
-		'title' => 'blockTitle',
 	];
 
 	public $blockTypes = [
 		'content' => 'html',
-		'title' => 'html',
 	];
 
 
@@ -37,24 +35,16 @@ class Template5709f7a981 extends Latte\Runtime\Template
 	{
 		extract($_args);
 ?>
-<div id="banner">
-<?php
-		$this->renderBlock('title', get_defined_vars());
-?>
-</div>
 
-<div id="content">
-	<ul class = "menu">
-		<li><a href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Homepage:default")) ?>">Home</a></li>
-		<li><a href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Homepage:help")) ?>">Naávod</a></li>
 
-	</ul>
-</div>
 <?php
-		/* line 15 */ $_tmp = $this->global->uiControl->getComponent("downloadForm");
+		/* line 6 */ $_tmp = $this->global->uiControl->getComponent("downloadForm");
 		if ($_tmp instanceof Nette\Application\UI\IRenderable) $_tmp->redrawControl(NULL, FALSE);
 		$_tmp->render();
-		/* line 16 */ $_tmp = $this->global->uiControl->getComponent("uploadForm");
+?>
+<progress max="100" value="80"></progress>
+<?php
+		/* line 8 */ $_tmp = $this->global->uiControl->getComponent("uploadForm");
 		if ($_tmp instanceof Nette\Application\UI\IRenderable) $_tmp->redrawControl(NULL, FALSE);
 		$_tmp->render();
 ?>
@@ -62,14 +52,6 @@ class Template5709f7a981 extends Latte\Runtime\Template
 
 
 
-<?php
-	}
-
-
-	function blockTitle($_args)
-	{
-		extract($_args);
-?>	<h1>Serus Imoo!</h1>
 <?php
 	}
 

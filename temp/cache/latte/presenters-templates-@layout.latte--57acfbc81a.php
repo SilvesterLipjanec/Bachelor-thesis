@@ -7,11 +7,13 @@ class Template57acfbc81a extends Latte\Runtime\Template
 {
 	public $blocks = [
 		'head' => 'blockHead',
+		'title' => 'blockTitle',
 		'scripts' => 'blockScripts',
 	];
 
 	public $blockTypes = [
 		'head' => 'html',
+		'title' => 'html',
 		'scripts' => 'html',
 	];
 
@@ -37,7 +39,7 @@ class Template57acfbc81a extends Latte\Runtime\Template
 
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="<?php echo LR\Filters::escapeHtmlAttr(LR\Filters::safeUrl($basePath)) /* line 13 */ ?>/css/style.css">
-	<?php
+<?php
 		if ($this->getParentName()) return get_defined_vars();
 		$this->renderBlock('head', get_defined_vars());
 ?>
@@ -49,12 +51,14 @@ class Template57acfbc81a extends Latte\Runtime\Template
 		$iterations = 0;
 		foreach ($flashes as $flash) {
 			?>	<div<?php if ($_tmp = array_filter(['flash', $flash->type])) echo ' class="', LR\Filters::escapeHtmlAttr(implode(" ", array_unique($_tmp))), '"' ?>><?php
-			echo LR\Filters::escapeHtmlText($flash->message) /* line 19 */ ?></div>
+			echo LR\Filters::escapeHtmlText($flash->message) /* line 37 */ ?></div>
 <?php
 			$iterations++;
 		}
 ?>
+	
 
+	
 <?php
 		$this->renderBlock('content', $this->params, 'html');
 ?>
@@ -72,7 +76,7 @@ class Template57acfbc81a extends Latte\Runtime\Template
 	function prepare()
 	{
 		extract($this->params);
-		if (isset($this->params['flash'])) trigger_error('Variable $flash overwritten in foreach on line 19');
+		if (isset($this->params['flash'])) trigger_error('Variable $flash overwritten in foreach on line 37');
 		Nette\Bridges\ApplicationLatte\UIRuntime::initialize($this, $this->parentName, $this->blocks);
 		
 	}
@@ -80,7 +84,41 @@ class Template57acfbc81a extends Latte\Runtime\Template
 
 	function blockHead($_args)
 	{
-		
+		extract($_args);
+?>
+	<div id="banner">
+<?php
+		$this->renderBlock('title', get_defined_vars());
+?>
+	</div>
+	<div id="head">
+		<ul class = "menu">
+			<li><a href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Homepage:default")) ?>">Home</a></li>
+			<li><a href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Homepage:help")) ?>">Návod</a></li>
+			<li><a href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Homepage:help")) ?>">Štatistiky</a></li>
+			<li><a href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Homepage:help")) ?>">Moje testy</a></li>
+<?php
+		if ($user->isLoggedIn()) {
+			?>				<li><a href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Homepage:help")) ?>">Odhlásiť sa</a></li>
+<?php
+		}
+		else {
+			?>				<li><a href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Homepage:help")) ?>">Prihlásiť sa</a></li>						
+<?php
+		}
+?>
+
+		</ul>	
+	</div>
+<?php
+	}
+
+
+	function blockTitle($_args)
+	{
+		extract($_args);
+?>	<h1>Print & Scan</h1>
+<?php
 	}
 
 
@@ -90,7 +128,7 @@ class Template57acfbc81a extends Latte\Runtime\Template
 ?>
 	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 	<script src="https://nette.github.io/resources/js/netteForms.min.js"></script>
-	<script src="<?php echo LR\Filters::escapeHtmlAttr(LR\Filters::safeUrl($basePath)) /* line 26 */ ?>/js/main.js"></script>
+	<script src="<?php echo LR\Filters::escapeHtmlAttr(LR\Filters::safeUrl($basePath)) /* line 46 */ ?>/js/main.js"></script>
 <?php
 	}
 
