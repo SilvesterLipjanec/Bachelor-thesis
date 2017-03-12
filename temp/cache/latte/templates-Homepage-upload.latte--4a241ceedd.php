@@ -36,7 +36,7 @@ class Template4a241ceedd extends Latte\Runtime\Template
 		extract($_args);
 ?>
 <div id=upload>
-	<h2>2. krok</h2>
+	<h2>Uloženie skenu</h2>
 	<ul>
 		<li>Oskenujte vytlačený farebný vzor</li>
 		<li>Vyberte naskenovaný farebný vzor a sem uložte</li>

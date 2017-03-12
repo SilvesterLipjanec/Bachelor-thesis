@@ -725,9 +725,9 @@ int main(int argc, char *argv[])
  		priemerR = sucetR / pocet;
  		priemerG = sucetG / pocet;
  		priemerB = sucetB / pocet;
- 		fprintf(file, "%.1f\n",priemerR );
- 		fprintf(file, "%.1f\n",priemerG );
- 		fprintf(file, "%.1f\n",priemerB );
+ 		fprintf(file, "%.1f\t",priemerR );
+ 		fprintf(file, "%.1f\t",priemerG );
+ 		fprintf(file, "%.1f",priemerB );
 
  		fclose(file);
     	//writePPM("analyzedImage.ppm",image,line,1);

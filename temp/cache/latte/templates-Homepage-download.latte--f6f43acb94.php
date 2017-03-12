@@ -40,7 +40,7 @@ class Templatef6f43acb94 extends Latte\Runtime\Template
 		extract($_args);
 ?>
 <div id=download>
-	<h2>1. krok</h2>
+	<h2>Výber farebného vzoru</h2>
 	<ul>
 		<li>Vyberte požadovanú šírku farebného vzoru</li>
 		<li>Stiahnite farebný vzor</li>
@@ -55,11 +55,7 @@ class Templatef6f43acb94 extends Latte\Runtime\Template
 ?>
 
 <progress max="100" value="0"></progress>
-<?php
-		/* line 16 */ $_tmp = $this->global->uiControl->getComponent("nextForm");
-		if ($_tmp instanceof Nette\Application\UI\IRenderable) $_tmp->redrawControl(NULL, FALSE);
-		$_tmp->render();
-?>
+
 
 
 
