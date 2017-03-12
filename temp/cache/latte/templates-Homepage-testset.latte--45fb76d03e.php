@@ -40,7 +40,7 @@ class Template45fb76d03e extends Latte\Runtime\Template
 		extract($_args);
 ?>
 <div>
-	<h2>Testovacia sada</h2>
+	<h2>Zadajte potrebné informácie</h2>
 	
 </div>
 <?php

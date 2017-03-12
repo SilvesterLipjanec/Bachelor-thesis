@@ -21,7 +21,7 @@ class DatabaseRepository
 	}
 	public function findTestSetForUser($id_user)
 	{
-		$test_sets = $this->database->table('User_test_sets')->where('id_user',$id_user);
+		$test_sets = $this->database->table('Test_set')->where('id_user',$id_user);
 		$sets = array();
 		foreach ($test_sets as $set) {
 			$sada = $set->id_set.' - '.$set->producer.', '.$set->model.', '.$set->set_note;
@@ -47,31 +47,50 @@ class DatabaseRepository
 	{
 		$values['red'] = $rgb['r'];
 		$values['green'] = $rgb['g'];
-		$values['blue'] = $b['b'];
+		$values['blue'] = $rgb['b'];
 		$values['width'] = $width;
+		if($values['printer_res'] == '')
+			unset($values['printer_res']);
+		if($values['scanner_res'] == '')
+			unset($values['scanner_res']);
+		if(isset($values['test_note']) and ($values['test_note'] == ''))
+			unset($values['test_note']);	
 		return $values;
 	}
 	public function insertResultForExistSet($values,$file,$width)
 	{
-		$rgb = readResultFromFile($file);
-		$values = fillRecord($values,$rgb,$width);
+		$rgb = $this->readResultFromFile($file);
+		$values = $this->fillRecord($values,$rgb,$width);
 		$this->database->table('Test')->insert($values);
 		exec('rm '.$file);
 	}
-	public function insertResultForNewSet($values,$file,$width)
-	{
+	public function insertResultForNewSet($values,$file,$width,$id_user)
+	{	
+		if($id_user != -99)	
+		{
+			$values['id_user'] = $id_user;
+			$test_val['test_note'] = $values['test_note'];
+			unset($values['test_note']);
+		}
+
+		$test_val['printer_res'] = $values['printer_res'];
+		$test_val['scanner_res'] = $values['scanner_res'];
+						
+		unset($values['printer_res']);
+		unset($values['scanner_res']);
 		
-		$val['set_note'] = $values['set_note'];
-		$val['test_note'] = $values['test_note'];
-		unset($values['set_note']);
-		unset($values['test_note']);
-		//var_dump($values);
-		$this->database->table('Printers')->insert($values);
+		if($values['set_note'] == '')
+			unset($values['set_note']);
 
-		//$rgb = readResultFromFile($file);
-		//$values = fillRecord($values,$rgb,$width);
+		$row = $this->database->table('Test_set')->insert($values);
+		$test_val['id_set'] = $row->getPrimary();
 
-
+		$rgb = $this->readResultFromFile($file);
+		$test_val = $this->fillRecord($test_val,$rgb,$width);
+		
+		$this->database->table('Test')->insert($test_val);
+		unset($test_val);
+		unset($values);
 	}
-
+	
 }

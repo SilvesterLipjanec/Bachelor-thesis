@@ -113,11 +113,13 @@ class HomepagePresenter extends BasePresenter
 		    if(file_exists($file_alg_pos))
 		    {
 		    	exec('rm '.$file_alg_pos);
-		    }		    
-		    if($this->getUser()->isLoggedIn())
+		    }		
+			$id_user = $this->getUser()->getIdentity()->id_user;
+
+		    if($this->getUser()->isLoggedIn() and count($this->database->findTestSetForUser($id_user)) != 0)
 		    	$this->redirect("Homepage:testset", $this->getParameter('width'),$file_txt_pos);
 		    else
-		    	$this->redirect("Homepage:info");
+		    	$this->redirect("Homepage:newtestset",$this->getParameter('width'),$file_txt_pos);
 		}
 	    else //nepodporovany format suboru
 	    {
@@ -170,9 +172,7 @@ class HomepagePresenter extends BasePresenter
 			case 'download':				
 				$this->redirect('Homepage:upload');
 				break;
-			case 'upload':
-				$this->redirect('Homepage:info');
-				break;
+			
 		}
 	}
 	public function createNewTestSet()
@@ -197,27 +197,30 @@ class HomepagePresenter extends BasePresenter
 			'iná' => 'iná'
 		);		
 		
-		$form->addSelect('typ', 'Typ tlačiarne:', $typ_tlaciarne);
-		$form->addText('print_res','Rozlíšenie tlačiarne:')
+		$form->addSelect('type', 'Typ tlačiarne:', $typ_tlaciarne);
+		$form->addText('printer_res','Rozlíšenie tlačiarne:')
 			->SetRequired(FALSE)
-			->addRule(Form::INTEGER);
-		$form->addText('scan_res','Rozlíšenie skenera:')
+			->addRule(Form::INTEGER)
+			->addRule(Form::MIN,'Rozlíšenie tlačiarne musí byť kladné číslo.');
+		$form->addText('scanner_res','Rozlíšenie skenera:')
 			->SetRequired(FALSE)
-			->addRule(Form::INTEGER);
+			->addRule(Form::INTEGER)
+			->addRule(Form::MIN,'Rozlíšenie skenera musí byť kladné číslo.');
+
 		if($this->getUser()->isLoggedIn())
 		{
 			$form->addTextArea('set_note', 'Poznámka k sade:')
-			->SetRequired(FALSE)
-		    ->addRule(Form::MAX_LENGTH, 'Vaša poznámka je príliš dlhá', 400);
-		$form->addTextArea('test_note', 'Poznámka k testu:')
-			->SetRequired(FALSE)
-		    ->addRule(Form::MAX_LENGTH, 'Vaša poznámka je príliš dlhá', 400);
+				->SetRequired(FALSE)
+			    ->addRule(Form::MAX_LENGTH, 'Vaša poznámka je príliš dlhá', 400);
+			$form->addTextArea('test_note', 'Poznámka k testu:')
+				->SetRequired(FALSE)
+			    ->addRule(Form::MAX_LENGTH, 'Vaša poznámka je príliš dlhá', 400);
 		}
 		else
 		{
-			$form->addTextArea('test_note', 'Poznámka k testu:')
-			->SetRequired(FALSE)
-		    ->addRule(Form::MAX_LENGTH, 'Vaša poznámka je príliš dlhá.', 400);
+			$form->addTextArea('set_note', 'Poznámka:')
+				->SetRequired(FALSE)
+			    ->addRule(Form::MAX_LENGTH, 'Vaša poznámka je príliš dlhá.', 400);
 		}
 		
 		$form->addSubmit('save','Uložiť a pokračovať');
@@ -234,6 +237,16 @@ class HomepagePresenter extends BasePresenter
 		$form->addTextArea('test_note', 'Poznámka k testu:')
 			->SetRequired(FALSE)
 		    ->addRule(Form::MAX_LENGTH, 'Vaša poznámka je príliš dlhá.', 4000);
+		$form->addText('printer_res','Rozlíšenie tlačiarne:')
+			->SetRequired(FALSE)
+			->addRule(Form::INTEGER)
+			->addRule(Form::MIN,'Rozlíšenie tlačiarne musí byť kladné číslo.',0)
+			->addRule(Form::MAX,'Rozlíšenie tlačiarne je príliš veľké.',32767);
+		$form->addText('scanner_res','Rozlíšenie skenera:')
+			->SetRequired(FALSE)
+			->addRule(Form::INTEGER)
+			->addRule(Form::MIN,'Rozlíšenie skenera musí byť kladné číslo.',0)
+			->addRule(Form::MAX,'Rozlíšenie skenera je príliš veľké.',32767);
 		$form->addSubmit('use_set','Vybrať sadu a uložiť')
 			->onClick[] = array($this,'infoToExistTestSet' );
 		$form->addSubmit('new_set', 'Vytvoriť novú testovaciu sadu')
@@ -251,10 +264,16 @@ class HomepagePresenter extends BasePresenter
 	
 	}
 	public function infoToNewTestSet($button)
-	{
+	{	
 		$values = $button->getForm()->getValues();
+
+		if($this->getUser()->isLoggedIn())
+		{
+			$id_user = $this->getUser()->getIdentity()->id_user;
+		}
+		else $id_user = -99;
+		$this->database->insertResultForNewSet($values,$this->getParameter('file'),$this->getParameter('width'),$id_user);
 		
-		$this->database->insertResultForNewSet($values,$this->getParameter('file'),$this->getParameter('width'));
 		$this->redirect('Homepage:result');
 	
 	}
