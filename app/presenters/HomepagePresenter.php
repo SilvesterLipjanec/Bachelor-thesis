@@ -92,7 +92,7 @@ class HomepagePresenter extends BasePresenter
 		    $file_ppm_pos = self::UPLOAD_DIR . $file_id . '.ppm';
 		    $file_alg_pos = self::UPLOAD_DIR . 'alg_' . $file_ppm;
 		    $file_txt_pos = self::UPLOAD_DIR . $file_id . '.txt';
-
+		   
 		    if($file_ext == '.jpg')		    {
 		    	
 		    	exec('jpegtopnm '.$file_pos.' > '.$file_ppm_pos);
@@ -113,13 +113,19 @@ class HomepagePresenter extends BasePresenter
 		    if(file_exists($file_alg_pos))
 		    {
 		    	exec('rm '.$file_alg_pos);
-		    }		
-			$id_user = $this->getUser()->getIdentity()->id_user;
-
-		    if($this->getUser()->isLoggedIn() and count($this->database->findTestSetForUser($id_user)) != 0)
-		    	$this->redirect("Homepage:testset", $this->getParameter('width'),$file_txt_pos);
+		    }
+		   if($this->getUser()->isLoggedIn())
+		    { 	
+				$id_user = $this->getUser()->getIdentity()->id_user;
+				if(count($this->database->findTestSetForUser($id_user)) != 0)
+		    		$this->redirect("Homepage:testset", $this->getParameter('width'),$file_txt_pos);
+		    	else
+		    		$this->redirect("Homepage:newtestset",$this->getParameter('width'),$file_txt_pos);
+		    }
 		    else
+		    {
 		    	$this->redirect("Homepage:newtestset",$this->getParameter('width'),$file_txt_pos);
+		    }
 		}
 	    else //nepodporovany format suboru
 	    {
@@ -272,10 +278,15 @@ class HomepagePresenter extends BasePresenter
 			$id_user = $this->getUser()->getIdentity()->id_user;
 		}
 		else $id_user = -99;
-		$this->database->insertResultForNewSet($values,$this->getParameter('file'),$this->getParameter('width'),$id_user);
+		$id_test = $this->database->insertResultForNewSet($values,$this->getParameter('file'),$this->getParameter('width'),$id_user);
 		
-		$this->redirect('Homepage:result');
+		$this->redirect('Homepage:result',$id_test,$this->getParameter('width'));
 	
+	}
+	public function renderResult($id,$width)
+	{
+		$this->template->test = $this->database->getTestResult($id);
+		$this->template->ref = $this->database->getReference($width);
 	}
 
 }

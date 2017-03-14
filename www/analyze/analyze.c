@@ -474,17 +474,17 @@ MidNextInfo findVertInfo(PPMImage *img, int r, int c)
 	inf.mid = r + ((row - r - 1) / 2);
 	return inf;
 }
-int findNextHoriz(PPMImage *img, int r, int c)
+int findNextHoriz(PPMImage *img, int r, int c , int EC)
 {	
-	while(!isBlack(img,r,c))
+	while(!isBlack(img,r,c) && c < EC)
 	{
 		c++;
 	}
 	return c;
 }
-int findNextVert(PPMImage *img, int r, int c)
+int findNextVert(PPMImage *img, int r, int c, int ER)
 {	
-	while(!isBlack(img,r,c))
+	while(!isBlack(img,r,c) && r < ER)
 	{
 		r++;
 	}
@@ -504,6 +504,7 @@ int *findVertLines(PPMImage *img, Lines line, Point *StHorPt, int *Ccnt)
     	exit(2);
 	}
 	//posun act.r na stred vertikalnej liny
+
 	Vinf = findVertInfo(img , actV.r , actV.c);
 	actV.r = Vinf.mid;
 	StHorPt->r = Vinf.nextWhite - 1;
@@ -521,8 +522,9 @@ int *findVertLines(PPMImage *img, Lines line, Point *StHorPt, int *Ccnt)
 		actV.c = Hinf.nextWhite;
 		vert[*Ccnt-1] = Hinf.mid;
 		writePoint(img, actV.r, Hinf.mid);
-		actV.c = findNextHoriz(img, actV.r, actV.c );
+		actV.c = findNextHoriz(img, actV.r, actV.c, line.lst.c );
 	}
+
 	//Hladaj pociatocny bod prvej horizontalnej liny
 	while(isBlack(img,StHorPt->r,StHorPt->c))
 	{
@@ -552,9 +554,11 @@ int *findHorizLines(PPMImage*img, Point actH, int *Rcnt)
 
 	Hinf = findHorizInfo(img, actH.r, actH.c);
 	actH.c = Hinf.mid;
+
 	//hladaj dalsiu horizontalnu linu v smere y
 	while(actH.r < ER)
 	{
+
 		*Rcnt += 1;
 		if((horiz = (int *)realloc(horiz,*Rcnt*sizeof(int *))) == NULL)
 		{
@@ -565,9 +569,11 @@ int *findHorizLines(PPMImage*img, Point actH, int *Rcnt)
 		actH.r = Vinf.nextWhite;
 		horiz[*Rcnt-1] = Vinf.mid;
 		writePoint(img,Vinf.mid, actH.c);
-		actH.r = findNextVert(img,actH.r,actH.c );
+		actH.r = findNextVert(img,actH.r,actH.c ,ER);
+		
 	}
 	
+		
 	return horiz;
 }
 
@@ -669,14 +675,15 @@ int main(int argc, char *argv[])
     	if(line.fst.r != line.lst.r)
     	{
     		
-  
     		sprintf(alg_filename,"./data/alg_%s",pom_filename);
     		//najdi uhol, ktory je potrebny na vyrovnanie obrazka
     		angle = findAngle(line);
+    		    		
     		sprintf(rotate_cmd,"pnmrotate %lf %s > %s",angle,params.filename,alg_filename);
     		//rotuj obrazok a uloz ho ako aligned_{image name}
+    		
     		system(rotate_cmd);
-    		//printf("%s\n",rotate_cmd );
+    		
     		//uvolni pamat predchadzajuceho obrazka
     		deallocMem(image);
 		
@@ -689,7 +696,9 @@ int main(int argc, char *argv[])
     	printf("%d %d \n",line.fst.r, line.fst.c );
     	printf("%d %d \n",line.lst.r, line.lst.c ); 
     	*/
+
     	vertIndex = findVertLines(image, line, &StHorPt, &Ccnt);    	
+    	
     	horizIndex = findHorizLines(image, StHorPt, &Rcnt);
 
  		
@@ -706,9 +715,10 @@ int main(int argc, char *argv[])
  		int sucetG = 0;
  		int sucetB = 0;
  		int pocet = 0;
+
  		pom_filename[strlen(pom_filename)-4] = 0;
  		sprintf(vysl_filename,"./data/%s.txt",pom_filename);
- 		//printf("%s\n",vysl_filename );
+
 		file = fopen(vysl_filename, "wb");
  		for(int r = 1 ; r <= Rcnt - 3 ; r++)
  		{

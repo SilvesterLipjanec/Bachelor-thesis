@@ -3,7 +3,7 @@ parameters:
 
 database:
 	dsn: 'mysql:host=127.0.0.1;dbname=xlipja01'
-	user: 'silvester'
-	password: 'aaa'
+	user: 'xlipja01'
+	password: 'ala5cenbez'
 	options:
 		lazy: yes

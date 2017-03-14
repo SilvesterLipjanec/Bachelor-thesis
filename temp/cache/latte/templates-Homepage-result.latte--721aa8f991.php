@@ -17,9 +17,6 @@ class Template721aa8f991 extends Latte\Runtime\Template
 	function main()
 	{
 		extract($this->params);
-?>
-
-<?php
 		if ($this->getParentName()) return get_defined_vars();
 		$this->renderBlock('content', get_defined_vars());
 		return get_defined_vars();
@@ -36,7 +33,13 @@ class Template721aa8f991 extends Latte\Runtime\Template
 
 	function blockContent($_args)
 	{
-?><h2>Výsledok</h2>
+		extract($_args);
+?>
+
+<h2>Výsledok</h2>
+<p><?php echo LR\Filters::escapeHtmlText($test->red) /* line 4 */ ?></p>
+<p><?php echo LR\Filters::escapeHtmlText($test->green) /* line 5 */ ?></p>
+<p><?php echo LR\Filters::escapeHtmlText($test->blue) /* line 6 */ ?></p>
 
 <progress max="100" value="100"></progress>
 

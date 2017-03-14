@@ -88,9 +88,20 @@ class DatabaseRepository
 		$rgb = $this->readResultFromFile($file);
 		$test_val = $this->fillRecord($test_val,$rgb,$width);
 		
-		$this->database->table('Test')->insert($test_val);
+		$row_test = $this->database->table('Test')->insert($test_val);
 		unset($test_val);
 		unset($values);
+		exec('rm '.$file);
+		return $row_test->getPrimary();
+	}
+
+	public function getTestResult($id)
+	{
+		return $this->database->table('Test')->where('id_test',$id)->fetch();
+	}
+	public function getReference($width)
+	{
+		return $this->database->table('Test')->where('id_test',$width)->where('width',$width);
 	}
 	
 }
