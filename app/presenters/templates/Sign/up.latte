@@ -1,6 +1,12 @@
 {block content}
-<h2 n:block=subtitle>Registrácia</h2>
+<div style="min-height: 830px">
+	<div class="w3-container" style="padding: 150px 16px 100px 16px">
+		<h2 class="w3-xxlarge w3-border-bottom w3-section w3-padding-32" style="padding-left:64px">Registrácia</h2>
 
-{control signUpForm}
+		<div style="padding-left:64px">{control signUpForm}</div>
 
-<p><a n:href="in">Už ste registrovaný? Prihláste sa.</a></p>
+		<h4 class="w3-border-top w3-padding-16" style="padding-left:64px">Už ste registrovaný?</h4>
+		<a n:href="in" class="w3-button w3-grey" style="margin-left:64px">Prihlásiť sa</a></button> 
+	</div>
+</div>
+{/block}

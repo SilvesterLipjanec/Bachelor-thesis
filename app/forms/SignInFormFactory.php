@@ -31,15 +31,25 @@ class SignInFormFactory
 	public function create(callable $onSuccess)
 	{
 		$form = $this->factory->create();
-		$form->addText('username', 'Meno:')
-			->setRequired('Prosím zadaj užívateľské meno.');
 
-		$form->addPassword('password', 'Heslo:')
-			->setRequired('Prosím zadajte vaše heslo.');
+		$form->addText('username')
+			->setRequired('Prosím zadaj užívateľské meno.')
+			->setAttribute('placeholder','Meno')
+			->setAttribute('class','w3-input w3-border w3-margin-top')
+			->setAttribute('style','width:100%');
 
-		$form->addCheckbox('remember', 'Zapamätať prihlásenie');
+		$form->addPassword('password')
+			->setRequired('Prosím zadajte vaše heslo.')
+			->setAttribute('placeholder','Heslo')
+			->setAttribute('class','w3-input w3-border')
+			->setAttribute('style','width:100%');
 
-		$form->addSubmit('send', 'Prihlásiť');
+		$form->addCheckbox('remember', 'Zapamätať prihlásenie')
+			->setAttribute('class','w3-check w3-section');
+
+		$form->addSubmit('send', 'Prihlásiť')
+			->setAttribute('class','w3-button w3-black w3-section')
+			->setAttribute('style','width:100%');
 
 		$form->onSuccess[] = function (Form $form, $values) use ($onSuccess) {
 			try {

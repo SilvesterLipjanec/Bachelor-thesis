@@ -6,7 +6,9 @@ use Nette;
 use App\Model;
 use Nette\Application\UI\Form;
 use Nette\Forms\Controls\SubmitButton;
+use Nette\Utils\Html;
 //use Nette\Forms\Controls\Button;
+define("ERROR", -999);
 
 class HomepagePresenter extends BasePresenter
 {
@@ -14,6 +16,7 @@ class HomepagePresenter extends BasePresenter
 	const UPLOAD_DIR = './data/';
 	const ANALYZE_DIR = './analyze/';
 	private $database;
+	
 	
 	public function __construct(Model\DatabaseRepository $database)
 	{
@@ -27,8 +30,15 @@ class HomepagePresenter extends BasePresenter
 	{ 
 	  
 	  $form = new Form;
-	  $form->addUpload("file","Vybrať súbor:");
-	  $form->addSubmit("save", "Uložit");
+	  $form->addUpload("file")
+			->setHtmlAttribute('class','w3-button w3-black w3-section');
+	  $form->addSubmit("back","Späť")
+			->setAttribute('class','w3-button w3-grey')
+			->setAttribute('style','width:49%')
+	        ->onClick[] = array($this,'goBack');
+	  $form->addSubmit("save", "Uložit")
+			->setAttribute('class','w3-button w3-grey')
+			->setAttribute('style','width:49%');
 	  $form->onSuccess[] = array($this,'saveUploadClicked');
 	  return $form;
 	}
@@ -40,11 +50,22 @@ class HomepagePresenter extends BasePresenter
 		    '4' => '4 mm'
 		];
 		$form = new Form;		
-		$form->addRadioList('width', 'Šírka vzoru:', $pattern_width)
-			->setDefaultValue('2');
-		$form->addSubmit("download","Stiahnúť");
+		$form->addRadioList('width','', $pattern_width)
+			->setDefaultValue('2')
+			->setAttribute('style',"text-align:center;display:inline-block")
+			->setAttribute('class',"w3-radio");
+		$form->addSubmit("download","Stiahnúť")
+			 ->setAttribute('style','width:100%')
+			->setAttribute('class',"w3-button w3-black w3-section" );
+		$form->addSubmit("back","Späť")
+			->setAttribute('class','w3-button w3-grey')
+			->setAttribute('style','width:49%')
+		    ->onClick[] = array($this,'goBack');
+		
 		
 		$form->addSubmit("next","Pokračovať")
+			->setAttribute('class',"w3-button w3-grey")
+			->setAttribute('style','width:49%')		
 			->onClick[] = array($this, 'goUpload');
 		$form->onSuccess[] = array($this, 'downloadClicked');
 		return $form;
@@ -105,9 +126,9 @@ class HomepagePresenter extends BasePresenter
 		    {
 		   		exec('tifftopnm '.$file_pos.' > '.$file_ppm_pos);
 		    }
-
+		    $w = $this->getParameter('width');
 		    //cesta k datam relativna od priecinka v ktorom je umiestneny analyzator
-		    exec(self::ANALYZE_DIR.'analyze '.$file_ppm_pos);
+		    exec(self::ANALYZE_DIR.'analyze '.$file_ppm_pos.' '.$w);
 		    exec('rm '.$file_ppm_pos);
 		    exec('rm '.$file_pos);
 		    if(file_exists($file_alg_pos))
@@ -145,12 +166,11 @@ class HomepagePresenter extends BasePresenter
 	}
 	public function createComponentNextForm()
 	{	
-		
-
 		$form = new Form;
-		if($this->getView() == 'default')
+		if($this->getView() == 'default' or $this->getView() == 'result' )
 		{
-			$form->addSubmit("gotest","Otestovať tlačiareň");
+			$form->addSubmit("gotest","Otestovať tlačiareň")
+			 ->setAttribute('class',"w3-button w3-black w3-padding-large");
 		}
 		else
 		{
@@ -159,6 +179,14 @@ class HomepagePresenter extends BasePresenter
 
 		$form->onSuccess[] = array($this, 'goNext');
 	  	return $form;
+	}
+	public function createComponentBackForm()
+	{
+		$form = new Form;
+		$form->addSubmit("back","Späť")
+			->setAttribute('class','w3-button');
+		$form->onSuccess[] = array($this,'goBack');
+		return $form;
 	}
 	public function goUpload(SubmitButton $button)
 	{
@@ -172,13 +200,30 @@ class HomepagePresenter extends BasePresenter
 	public function goNext()
 	{
 		switch ($this->getView()) {
-			case 'default':
+			case 'default' or 'result':
 				$this->redirect('Homepage:download');		
 				break;
 			case 'download':				
 				$this->redirect('Homepage:upload');
 				break;
 			
+		}
+	}
+	public function goBack()
+	{
+		switch($this->getView()){
+			case 'download':
+				$this->redirect('Homepage:default');
+				break;
+			case 'upload':
+				$this->redirect('Homepage:download');
+				break;
+			case 'newtestset':
+				$this->redirect('Homepage:upload',$this->getParameter('width'));
+				break;
+			case 'testset':
+				$this->redirect('Homepage:upload',$this->getParameter('width'));
+				break;
 		}
 	}
 	public function createNewTestSet()
@@ -193,44 +238,75 @@ class HomepagePresenter extends BasePresenter
 	public function createComponentNewSetForm()
 	{
 		$form = new Form;
-		$form->addText('producer','Výrobca tlačiarne:')
-			->SetRequired('Prosím zadajte výrobcu tlačiarne.');
-		$form->addText('model','Model tlačiarne:')
-			->SetRequired('Prosím zadajte model tlačiarne.');
+		$form->addText('producer','*')
+			->SetRequired('Prosím zadajte výrobcu tlačiarne.')
+			->setAttribute('placeholder','Značka tlačiarne')
+			->setAttribute('class','w3-input w3-border')
+			->setAttribute('style','width:150%');
+		$form->addText('model','*')
+			->SetRequired('Prosím zadajte model tlačiarne.')
+			->setAttribute('placeholder','Model tlačiarne')
+			->setAttribute('class','w3-input w3-border')
+			->setAttribute('style','width:150%');
 		$typ_tlaciarne = array(
 			'laserová' =>	'laserová',
 			'atramentová' => 'atramentová',
 			'iná' => 'iná'
 		);		
 		
-		$form->addSelect('type', 'Typ tlačiarne:', $typ_tlaciarne);
-		$form->addText('printer_res','Rozlíšenie tlačiarne:')
+		$form->addSelect('type', '', $typ_tlaciarne)
+			 ->setPrompt('Typ tlačiarne')
+			->setAttribute('class','w3-input w3-border')
+			->setAttribute('style','width:150%');
+		;
+		$form->addText('printer_res')
+			->setAttribute('placeholder','Rozlíšenie tlačiarne')
+			->setAttribute('class','w3-input w3-border')
+			->setAttribute('style','width:150%')
 			->SetRequired(FALSE)
 			->addRule(Form::INTEGER)
-			->addRule(Form::MIN,'Rozlíšenie tlačiarne musí byť kladné číslo.');
-		$form->addText('scanner_res','Rozlíšenie skenera:')
+			->addRule(Form::MIN,'Rozlíšenie tlačiarne musí byť kladné číslo.',0);
+		$form->addText('scanner_res')
+		    ->setAttribute('placeholder','Rozlíšenie skenera')
+			->setAttribute('class','w3-input w3-border')
+			->setAttribute('style','width:150%')
 			->SetRequired(FALSE)
 			->addRule(Form::INTEGER)
-			->addRule(Form::MIN,'Rozlíšenie skenera musí byť kladné číslo.');
+			->addRule(Form::MIN,'Rozlíšenie skenera musí byť kladné číslo.',0);
 
 		if($this->getUser()->isLoggedIn())
 		{
-			$form->addTextArea('set_note', 'Poznámka k sade:')
+			$form->addTextArea('set_note')
+				->setAttribute('placeholder','Poznámka k sade')
+				->setAttribute('class','w3-input w3-border')
+				->setAttribute('style','width:150%')
 				->SetRequired(FALSE)
 			    ->addRule(Form::MAX_LENGTH, 'Vaša poznámka je príliš dlhá', 400);
-			$form->addTextArea('test_note', 'Poznámka k testu:')
+			$form->addTextArea('test_note')
+				->setAttribute('placeholder','Poznámka k testu')
+				->setAttribute('class','w3-input w3-border')
+				->setAttribute('style','width:150%')	
 				->SetRequired(FALSE)
 			    ->addRule(Form::MAX_LENGTH, 'Vaša poznámka je príliš dlhá', 400);
 		}
 		else
 		{
-			$form->addTextArea('set_note', 'Poznámka:')
+			$form->addTextArea('set_note')
+		   		 ->setAttribute('placeholder','Poznámka')
+				->setAttribute('class','w3-input w3-border')
+				->setAttribute('style','width:150%')
 				->SetRequired(FALSE)
 			    ->addRule(Form::MAX_LENGTH, 'Vaša poznámka je príliš dlhá.', 400);
 		}
-		
-		$form->addSubmit('save','Uložiť a pokračovať');
-		$form->onSuccess[] = array($this,'infoToNewTestSet' );
+		$form->addSubmit("back","Späť")
+			->setAttribute('class','w3-button w3-grey w3-section')
+			->setAttribute('style','width:49%')
+			->setValidationScope([])
+		    ->onClick[] = array($this, 'goBack');
+		$form->addSubmit('save','Uložiť')
+			->setAttribute('class','w3-button w3-grey')
+			->setAttribute('style','width:49%')
+			->onClick[] = array($this,'infoToNewTestSet' );
 			
 		return $form;		
 	}
@@ -238,36 +314,71 @@ class HomepagePresenter extends BasePresenter
 	{
 		$id_user = $this->getUser()->getIdentity()->id_user;
 		$form = new Form;
-		$form->addSelect('id_set','Zaradiť do testovacej sady:',$this->database->findTestSetForUser($id_user));
+		$form->addSelect('id_set','*',$this->database->findTestSetForUser($id_user))
+				->setPrompt('Výber testovacej sady')
+			->SetRequired('Pre uloženie je potrebné vybrať testovaciu sadu')
+			->setAttribute('class','w3-input w3-border')
+			->setAttribute('style','width:150%');;
 		
-		$form->addTextArea('test_note', 'Poznámka k testu:')
+		$form->addTextArea('test_note', '')
+			->setAttribute('placeholder','Poznámka')
+			->setAttribute('class','w3-input w3-border')
+			->setAttribute('style','width:150%')
 			->SetRequired(FALSE)
 		    ->addRule(Form::MAX_LENGTH, 'Vaša poznámka je príliš dlhá.', 4000);
-		$form->addText('printer_res','Rozlíšenie tlačiarne:')
+		$form->addText('printer_res')
+			->setAttribute('placeholder','Rozlíšenie tlačiarne')
+			->setAttribute('class','w3-input w3-border')
+			->setAttribute('style','width:150%')
 			->SetRequired(FALSE)
 			->addRule(Form::INTEGER)
 			->addRule(Form::MIN,'Rozlíšenie tlačiarne musí byť kladné číslo.',0)
 			->addRule(Form::MAX,'Rozlíšenie tlačiarne je príliš veľké.',32767);
-		$form->addText('scanner_res','Rozlíšenie skenera:')
+		$form->addText('scanner_res')
+			->setAttribute('placeholder','Rozlíšenie skenera')
+			->setAttribute('class','w3-input w3-border')
+			->setAttribute('style','width:150%')
 			->SetRequired(FALSE)
 			->addRule(Form::INTEGER)
 			->addRule(Form::MIN,'Rozlíšenie skenera musí byť kladné číslo.',0)
 			->addRule(Form::MAX,'Rozlíšenie skenera je príliš veľké.',32767);
-		$form->addSubmit('use_set','Vybrať sadu a uložiť')
-			->onClick[] = array($this,'infoToExistTestSet' );
-		$form->addSubmit('new_set', 'Vytvoriť novú testovaciu sadu')
-    		 ->onClick[] = array($this,'createNewTestSet');    	
+		$form->addSubmit("back","Späť")
+			->setAttribute('class','w3-button w3-grey w3-section')
+			->setAttribute('style','width:49%')
+			->setValidationScope([])
+		    ->onClick[] = array($this, 'goBack');
+		$form->addSubmit('use_set','Uložiť')
+			->setAttribute('class','w3-button w3-grey ')
+			->setAttribute('style','width:49%')
+			->onClick[] = array($this,'infoToExistTestSet' );	
+		   	
     	
 		return $form;
 	}
-	
+	public function createComponentNewForm()
+	{
+		$form = new Form;
+		$form->addSubmit('new_set', 'Vytvoriť novú sadu')
+	 		->setAttribute('class','w3-button w3-black w3-border-top')
+			->setAttribute('style','width:173%')
+    		 ->onClick[] = array($this,'createNewTestSet'); 
+    	return $form;
+	}
 	public function infoToExistTestSet($button)
 	{
 		$values = $button->getForm()->getValues();
 		
-		$this->database->insertResultForExistSet($values,$this->getParameter('file'),$this->getParameter('width'));
-		$this->redirect('Homepage:result');
-	
+		$id_test = $this->database->insertResultForExistSet($values,$this);
+		if($id_test == ERROR)
+		{
+			$this->flashMessage('Nahraný farebný vzor sa nepodarilo analyzovať. Skúste vytvoriť nový test.');
+			$this->redirect('Homepage:default');
+
+		}
+		else
+		{ 
+			$this->redirect('Homepage:result',$id_test,$this->getParameter('width'));
+		}
 	}
 	public function infoToNewTestSet($button)
 	{	
@@ -278,15 +389,41 @@ class HomepagePresenter extends BasePresenter
 			$id_user = $this->getUser()->getIdentity()->id_user;
 		}
 		else $id_user = -99;
-		$id_test = $this->database->insertResultForNewSet($values,$this->getParameter('file'),$this->getParameter('width'),$id_user);
-		
-		$this->redirect('Homepage:result',$id_test,$this->getParameter('width'));
-	
+		$id_test = $this->database->insertResultForNewSet($values,$this,$id_user);
+		if($id_test == ERROR)
+		{
+
+			$this->flashMessage('Nahraný farebný vzor sa nepodarilo analyzovať. Skúste vytvoriť nový test.');
+			$this->redirect('Homepage:default');
+			
+		}
+		else
+		{
+			$this->redirect('Homepage:result',$id_test,$this->getParameter('width'));
+		}
 	}
 	public function renderResult($id,$width)
 	{
 		$this->template->test = $this->database->getTestResult($id);
 		$this->template->ref = $this->database->getReference($width);
+		$this->template->width = $width;
+		$this->template->ref_per = array(
+			'R' => round((($this->template->ref->red *100) / 255)),
+			'G' => round((($this->template->ref->green *100) / 255)),
+			'B' => round((($this->template->ref->blue *100) / 255)),
+
+			);
+		$this->template->tst_per = array(
+			'R' => round((($this->template->test->red *100) / 255)),
+			'G' => round((($this->template->test->green *100) / 255)),
+			'B' => round((($this->template->test->blue *100) / 255)),
+
+			);
+
+
+
 	}
 
 }
+
+

@@ -1,14 +1,34 @@
 
 
 {block content}
-<div>
-	<h2>Zadajte potrebné informácie</h2>
-	
+<div style="min-height: 830px">
+	<div style="min-height: 790px">
+		<div class="w3-container" style="padding: 150px 16px 0px 16px">
+			<h2 class="w3-xxlarge w3-border-bottom w3-section w3-padding-32 w3-animate-left padding-left-64">Zadajte potrebné informácie</h2>
+		</div>
+			<p class="padding-left-64">* Označené povinné polia</p>
+			<div class="margin-left-64">
+				{control newSetForm}
+			</div>
+		</div>
+	<div class="w3-panel">
+		<div class="w3-white w3-border ">
+		  <div id="myBar" class="w3-green" style="height:15px;width:66%"></div>
+		</div>
+	</div>
 </div>
-{control newSetForm}
+{/block}
 
 
-<progress max="100" value="0"></progress>
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1,13 +1,4 @@
-body {
-	font-size: 15px;
-	line-height: 1.6;
-	color: #333;
-	background: white;
-}
 
-h1 {
-	color: #3484D2;
-}
 progress[value] {
   /* Reset the default appearance */
   -webkit-appearance: none;
@@ -32,12 +23,33 @@ progress[value] {
 
 div.flash {
 	color: black;
-	background: #FFF9D7;
-	border: 1px solid #E2C822;
+	background: #ff7f7f;
+	border: 1px solid #cc0000;
 	padding: 1em;
-	margin: 1em 0;
+	margin-top:620px;
+	position: relative;
+	display: inline-block;
+	z-index: -10;
 }
 
+div.margin-left-64{
+	margin-left: 64px;
+}
+h2.padding-left-64{
+	padding-left: 64px;
+}
+p.padding-left-64{
+	padding-left: 64px;
+}
+ul.margin-left-64{
+	margin-left: 64px;
+
+}
+div.padding-l-r-32{
+	padding-left:32px;
+	padding-right:32px;
+
+}
 a[href^="#error:"] {
 	background: red;
 	color: white;

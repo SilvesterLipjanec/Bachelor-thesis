@@ -1,0 +1,112 @@
+
+
+{block content}
+	<div style="min-height: 830px">
+	<div class="w3-container" style="padding: 126px 16px 50px 16px">
+	<h2 class="w3-xxlarge w3-border-bottom w3-section w3-padding-16 w3-animate-left padding-left-64">Testovacia sada - Detail</h2>
+	<div class="w3-panel" style="margin-left:48px">
+	<div class="w3-third">
+	{form setDetailForm}
+		<div >
+			{label producer}
+			{input producer}
+		</div>
+		<div class="w3-margin-top">
+			{label model}
+			{input model}
+		</div>
+		<div class="w3-margin-top">
+			{label type}
+			{input type}
+		</div>
+		<div class="w3-margin-top">
+			{label set_note}
+			{input set_note}
+		</div>	
+	{/form}
+	</div>
+	</div>
+	{if $totalPages == 0}
+		<p>Zatiaľ neexistujú žiadne testy. Otestovať svoju tlačiareň môžete kliknutím na tlačidlo.</p>
+		{control nextForm}
+	{else}
+		<h3 class="w3-border-top" style="padding-left:32px; padding-top:16px">Zoznam testov</h3>
+		{for $i = 1; $i <= $totalPages; $i++}
+				
+			    {if $i == $page}
+			    	<div class="padding-l-r-32">
+					<table class="w3-table-all w3-small w3-hoverable">
+						<tr class="w3-hover-white">
+							<th>Dátum testu</th>
+							<th>Šírka vzoru</th>
+							<th>Červená</th>
+							<th>Zelená</th>
+							<th>Modrá</th>
+							<th>Rozlíšenie tlačiarne</th>
+							<th>Rozlíšenie skenera</th>
+							<th>Poznámka</th>
+							<th>&nbsp;</th>
+						</tr>	
+						{foreach $tests as $test}
+							<tr>
+								<td>{$test->date_time->format('d-m-Y H:m:s')}</td>
+							    <td>{$test->width}</td>
+							    <td>{$test->red}</td>
+							    <td>{$test->green}</td>
+							    <td>{$test->blue}</td>
+							    <td>{$test->printer_res}</td>
+							    <td>{$test->scanner_res}</td>
+							    <td>{$test->test_note}</td>	
+							    {if $test->id_test == 2 or $test->id_test == 3 or $test->id_test == 4 }
+								    <td>&nbsp;</td>
+							    {else}
+								    <td>
+										<a n:href="Stats:deletetest,$test->id_test">Vymazať</a>
+								    </td>
+								{/if}
+							</tr>
+						{/foreach}				
+					</table>
+					</div>
+		    {/if}
+		{/for}
+	{/if}
+	</div>
+
+	 <div class="w3-center" style="margin-bottom:16px">
+		<div class="w3-bar">
+		  {if $page == 1}
+		  	<a href="#" class="w3-bar-item w3-button">&laquo;</a>
+		  {else}
+		  	<a n:href="Stats:setdetail $id_set, $page-1, $totalPosts" class="w3-bar-item w3-button">&laquo;</a>
+		  {/if}
+		  
+		  {for $i = 1; $i <= $totalPages; $i++}
+		  		{if $i == $page}
+		  			<a class="w3-bar-item w3-button w3-grey" n:href="Stats:setdetail $id_set, $i, $totalPosts">{$i}</a>
+		  		{else}
+		  			<a class="w3-bar-item w3-button" n:href="Stats:setdetail $id_set, $i, $totalPosts">{$i}</a>
+		  		{/if}
+		  {/for}
+		 
+		  {if $page == $totalPages}
+		  	<a href="#" class="w3-bar-item w3-button">&raquo;</a>
+		  {else}
+		  	<a n:href="Stats:setdetail $id_set, $page+1, $totalPosts" class="w3-bar-item w3-button">&raquo;</a>
+		  {/if}
+		</div>
+	</div>
+
+	<div class="w3-panel">
+	{control backForm}
+	</div>
+</div>
+
+
+
+
+
+
+
+
+

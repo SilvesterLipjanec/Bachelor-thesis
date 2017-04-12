@@ -7,14 +7,14 @@ class Template57acfbc81a extends Latte\Runtime\Template
 {
 	public $blocks = [
 		'head' => 'blockHead',
-		'title' => 'blockTitle',
 		'scripts' => 'blockScripts',
+		'footer' => 'blockFooter',
 	];
 
 	public $blockTypes = [
 		'head' => 'html',
-		'title' => 'html',
 		'scripts' => 'html',
+		'footer' => 'html',
 	];
 
 
@@ -25,7 +25,15 @@ class Template57acfbc81a extends Latte\Runtime\Template
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="utf-8">
+	<meta charset="UTF-8">
+	<title>Print&Scan</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="<?php echo LR\Filters::escapeHtmlAttr(LR\Filters::safeUrl($basePath)) /* line 11 */ ?>/css/style.css">
+	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+	<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto'>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+	<body class="w3-light-grey">
 
 	<title><?php
 		if (isset($this->blockQueue["title"])) {
@@ -38,7 +46,6 @@ class Template57acfbc81a extends Latte\Runtime\Template
 ?>Nette Sandbox</title>
 
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" href="<?php echo LR\Filters::escapeHtmlAttr(LR\Filters::safeUrl($basePath)) /* line 13 */ ?>/css/style.css">
 <?php
 		if ($this->getParentName()) return get_defined_vars();
 		$this->renderBlock('head', get_defined_vars());
@@ -51,7 +58,7 @@ class Template57acfbc81a extends Latte\Runtime\Template
 		$iterations = 0;
 		foreach ($flashes as $flash) {
 			?>	<div<?php if ($_tmp = array_filter(['flash', $flash->type])) echo ' class="', LR\Filters::escapeHtmlAttr(implode(" ", array_unique($_tmp))), '"' ?>><?php
-			echo LR\Filters::escapeHtmlText($flash->message) /* line 37 */ ?></div>
+			echo LR\Filters::escapeHtmlText($flash->message) /* line 50 */ ?></div>
 <?php
 			$iterations++;
 		}
@@ -67,6 +74,11 @@ class Template57acfbc81a extends Latte\Runtime\Template
 		$this->renderBlock('scripts', get_defined_vars());
 ?>
 </body>
+
+<?php
+		$this->renderBlock('footer', get_defined_vars());
+?>
+
 </html>
 <?php
 		return get_defined_vars();
@@ -76,7 +88,7 @@ class Template57acfbc81a extends Latte\Runtime\Template
 	function prepare()
 	{
 		extract($this->params);
-		if (isset($this->params['flash'])) trigger_error('Variable $flash overwritten in foreach on line 37');
+		if (isset($this->params['flash'])) trigger_error('Variable $flash overwritten in foreach on line 50');
 		Nette\Bridges\ApplicationLatte\UIRuntime::initialize($this, $this->parentName, $this->blocks);
 		
 	}
@@ -87,37 +99,33 @@ class Template57acfbc81a extends Latte\Runtime\Template
 		extract($_args);
 ?>
 	<div id="banner">
-<?php
-		$this->renderBlock('title', get_defined_vars());
-?>
 	</div>
-	<div id="head">
-		<ul class = "menu">
-			<li><a href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Homepage:default")) ?>">Návod</a></li>
-			<li><a href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Homepage:download")) ?>">Otestovať tlačiareň</a></li>
-			<li><a href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Stats:stats")) ?>">Štatistiky</a></li>
-			<li><a href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Stats:mytests")) ?>">Moje testy</a></li>
+	
+	<div class="w3-top w3-white">
+		<div class="w3-center w3-padding-16">
+			<a class="w3-text-red w3-xxlarge">Print</a>
+			<a class="w3-text-green w3-xlarge">&</a>
+			<a class="w3-text-blue w3-xxlarge">Scan</a>
+		</div> 
+		<div class="w3-bar w3-deep-purple w3-card-2 w3-left-align">
+			<a class="w3-bar-item w3-button" href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Homepage:default")) ?>">Návod</a>
+			<a class="w3-bar-item w3-button" href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Homepage:download")) ?>">Otestovať tlačiareň</a>
+			<a class="w3-bar-item w3-button" href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Stats:stats")) ?>">Štatistiky</a>
+			<a class="w3-bar-item w3-button" href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Stats:find")) ?>">Vyhľadať tlačiareň</a>
 <?php
 		if ($user->isLoggedIn()) {
-			?>				<li><a href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Sign:out")) ?>">Odhlásiť sa</a></li>
+			?>				<a class="w3-bar-item w3-button" href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Stats:mytests")) ?>">Moje testy</a>
+				<a class="w3-bar-item w3-button w3-right" href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Sign:out")) ?>">Odhlásiť sa</a>
 <?php
 		}
 		else {
-			?>				<li><a href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Sign:in")) ?>">Prihlásiť sa</a></li>						
+			?>				<a class="w3-bar-item w3-button w3-right"  href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Sign:in")) ?>">Prihlásiť sa</a>					
 <?php
 		}
 ?>
 
-		</ul>	
+		</div>	
 	</div>
-<?php
-	}
-
-
-	function blockTitle($_args)
-	{
-		extract($_args);
-?>	<h1>Print & Scan</h1>
 <?php
 	}
 
@@ -128,7 +136,20 @@ class Template57acfbc81a extends Latte\Runtime\Template
 ?>
 	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 	<script src="https://nette.github.io/resources/js/netteForms.min.js"></script>
-	<script src="<?php echo LR\Filters::escapeHtmlAttr(LR\Filters::safeUrl($basePath)) /* line 46 */ ?>/js/main.js"></script>
+	<script src="<?php echo LR\Filters::escapeHtmlAttr(LR\Filters::safeUrl($basePath)) /* line 59 */ ?>/js/main.js"></script>
+	
+<?php
+	}
+
+
+	function blockFooter($_args)
+	{
+?>  <footer class="w3-container w3-deep-purple w3-center" style="width:100%;padding-top:16px; padding-bottom:40px">
+	  <p>Vysoké učení technické v Brne</p>
+	  <p>Autor: Silvester Lipjanec, 2017</p>
+	  <a class="fa fa-facebook-official w3-hover-opacity" href="https://www.facebook.com/silvesterl"></a>
+	 
+  </footer>
 <?php
 	}
 

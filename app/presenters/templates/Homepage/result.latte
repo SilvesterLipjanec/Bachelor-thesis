@@ -1,11 +1,112 @@
 {block content}
+<div style="min-height: 830px">
+	<div style="min-height: 790px">
+		<div class="w3-container" style="padding: 150px 16px 0px 16px">
+			<h2 class="w3-xxlarge w3-border-bottom w3-section w3-padding-32 w3-animate-left padding-left-64">Výsledok testu</h2>
+		</div>
 
-<h2>Výsledok</h2>
-<p>{$test->red}</p>
-<p>{$test->green}</p>
-<p>{$test->blue}</p>
+		<div class="w3-container">
+			<div class="w3-half w3-container" style="padding-right:16px" >
+				<div class="w3-panel"><h3>Referenčné hodnoty farebného vzoru</h3></div>
+				<ul class="w3-ul">
+					<li>
+						<div style="width:40%">
+							red: {$ref->red}
+						</div>
+						<div class="w3-white w3-border w3-margin-bottom">				
+						  <div class="w3-red" style="height:15px;width:{$ref_per['R']}%"></div>
+						</div>				
+					</li>
+					<li>
+						<div style="width:40%">
+							green: {$ref->green}
+						</div>
+						<div class="w3-white w3-border w3-margin-bottom">				
+						  <div class="w3-green" style="height:15px;width:{$ref_per['G']}%"></div>
+						</div>	
+					</li>
+					<li>
+					<div style="width:40%">
+							blue: {$ref->blue}
+						</div>
+						<div class="w3-white w3-border w3-margin-bottom">				
+						  <div class="w3-blue" style="height:15px;width:{$ref_per['B']}%"></div>
+						</div>	
+					</li>
+				</ul>
+				
+			</div>
+			<div class="w3-half w3-container w3-border-left" style="padding-left:16px" >
+				<div class="w3-panel"><h3>Výsledok testu</h3></div>
+				<ul class="w3-ul">
+					<li>
+						<div class="w3-quarter">
+							red: {$test->red}
+						</div>
+						<div>
+							rozdiel:
+							{if $test->dif_r > 0} +{$test->dif_r}%
+							{else} {$test->dif_r}%
+							{/if}
+						</div>
+						<div class="w3-white w3-border w3-margin-bottom">				
+						  <div class="w3-red" style="height:15px;width:{$tst_per['R']}%"></div>
+						</div>				
+					</li>
+					<li>
+						<div class="w3-quarter">				
+							green: {$test->green}
+						</div>
+						<div>
+							rozdiel:
+							{if $test->dif_g > 0} +{$test->dif_g}%
+							{else} {$test->dif_g}%
+							{/if}
+						</div>
+						<div class="w3-white w3-border w3-margin-bottom">				
+						  <div class="w3-green" style="height:15px;width:{$tst_per['G']}%"></div>
+						</div>	
+					</li>
+					<li>
+						<div class="w3-quarter">
+							blue: {$test->blue}
+						</div>
+						<div>
+							rozdiel:
+							{if $test->dif_b > 0} +{$test->dif_b}%
+							{else} {$test->dif_b}%
+							{/if}
+						</div>
+						<div class="w3-white w3-border w3-margin-bottom">				
+						  <div class="w3-blue" style="height:15px;width:{$tst_per['B']}%"></div>
+						</div>	
+					</li>
+				</ul>
+			</div>
+		</div>
 
-<progress max="100" value="100"></progress>
+	</div>
+<div class="w3-white w3-border w3-margin-left w3-margin-right">
+  <div id="myBar" class="w3-green" style="height:15px;width:100%"></div>
+</div>
+</div>
+{/block}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

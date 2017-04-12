@@ -5,36 +5,52 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="utf-8">
+	<meta charset="UTF-8">
+	<title>Print&Scan</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="{$basePath}/css/style.css">
+	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+	<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto'>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+	<body class="w3-light-grey">
 
 	<title>{ifset title}{include title|stripHtml} | {/ifset}Nette Sandbox</title>
 
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" href="{$basePath}/css/style.css">
 	{block head}
 	<div id="banner">
-	<h1 n:block=title>Print & Scan</h1>
 	</div>
-	<div id="head">
-		<ul class = "menu">
-			<li><a n:href = "Homepage:default">Návod</a></li>
-			<li><a n:href = "Homepage:download">Otestovať tlačiareň</a></li>
-			<li><a n:href = "Stats:stats">Štatistiky</a></li>
-			<li><a n:href = "Stats:mytests">Moje testy</a></li>
+	
+	<div class="w3-top w3-white">
+		<div class="w3-center w3-padding-16">
+			<a class="w3-text-red w3-xxlarge">Print</a>
+			<a class="w3-text-green w3-xlarge">&</a>
+			<a class="w3-text-blue w3-xxlarge">Scan</a>
+		</div> 
+		<div class="w3-bar w3-deep-purple w3-card-2 w3-left-align">
+			<a n:href = "Homepage:default" class="w3-bar-item w3-button">Návod</a>
+			<a n:href = "Homepage:download" class="w3-bar-item w3-button">Otestovať tlačiareň</a>
+			<a n:href = "Stats:stats" class="w3-bar-item w3-button">Štatistiky</a>
+			<a n:href="Stats:find" class="w3-bar-item w3-button">Vyhľadať tlačiareň</a>
 			{if $user->isLoggedIn()}
-				<li><a n:href = "Sign:out">Odhlásiť sa</a></li>
+				<a n:href = "Stats:mytests" class="w3-bar-item w3-button">Moje testy</a>
+				<a n:href = "Sign:out" class="w3-bar-item w3-button w3-right">Odhlásiť sa</a>
 			{else}
-				<li><a n:href = "Sign:in">Prihlásiť sa</a></li>						
+				<a n:href = "Sign:in" class="w3-bar-item w3-button w3-right" >Prihlásiť sa</a>					
 			{/if}
 
-		</ul>	
+		</div>	
 	</div>
 	{/block}
 	
 </head>
 
 <body>
-	<div n:foreach="$flashes as $flash" n:class="flash, $flash->type">{$flash->message}</div>
+	<div class="w3-center" style="width:100%; min-height:200px; position: absolute; z-index: -10;">
+		<div n:foreach="$flashes as $flash" n:class="flash, $flash->type">{$flash->message}
+		</div>
+	</div>
 	
 
 	
@@ -44,6 +60,17 @@
 	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 	<script src="https://nette.github.io/resources/js/netteForms.min.js"></script>
 	<script src="{$basePath}/js/main.js"></script>
+	
 	{/block}
 </body>
+{block footer}
+
+  <footer class="w3-container w3-deep-purple w3-center" style="width:100%;padding-top:16px; padding-bottom:40px">
+	  <p>Vysoké učení technické v Brne</p>
+	  <p>Autor: Silvester Lipjanec, 2017</p>
+	  <a class="fa fa-facebook-official w3-hover-opacity" href="https://www.facebook.com/silvesterl"></a>
+	 
+  </footer>
+{/block}
+
 </html>

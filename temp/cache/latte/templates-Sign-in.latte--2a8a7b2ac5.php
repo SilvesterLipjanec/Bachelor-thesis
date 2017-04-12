@@ -7,12 +7,10 @@ class Template2a8a7b2ac5 extends Latte\Runtime\Template
 {
 	public $blocks = [
 		'content' => 'blockContent',
-		'subtitle' => 'blockSubtitle',
 	];
 
 	public $blockTypes = [
 		'content' => 'html',
-		'subtitle' => 'html',
 	];
 
 
@@ -36,24 +34,20 @@ class Template2a8a7b2ac5 extends Latte\Runtime\Template
 	function blockContent($_args)
 	{
 		extract($_args);
-		$this->renderBlock('subtitle', get_defined_vars());
 ?>
+<div class="w3-container w3-center" style="padding: 150px 16px 200px 16px">
+	<h2 class="w3-xxlarge w3-border-bottom w3-section w3-padding-32">Prihlásenie</h2>
 
-<?php
-		/* line 4 */ $_tmp = $this->global->uiControl->getComponent("signInForm");
+	<div style="margin:auto; display:inline-block"><?php
+		/* line 5 */ $_tmp = $this->global->uiControl->getComponent("signInForm");
 		if ($_tmp instanceof Nette\Application\UI\IRenderable) $_tmp->redrawControl(NULL, FALSE);
 		$_tmp->render();
-?>
+?></div>
 
-<p><a href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("up")) ?>">Ešte nie ste registrovaný? Registrujte sa tu.</a></p>
-<?php
-	}
+	<h4 class="w3-border-top w3-padding-16">Ešte nie ste registrovaný?</h4>
+	<a class="w3-button w3-grey" href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("up")) ?>">Registrovať sa</a></button> 
+</div>
 
-
-	function blockSubtitle($_args)
-	{
-		extract($_args);
-?><h2>Prihlásenie</h2>
 <?php
 	}
 

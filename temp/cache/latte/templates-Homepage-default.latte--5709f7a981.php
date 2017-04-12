@@ -35,24 +35,18 @@ class Template5709f7a981 extends Latte\Runtime\Template
 	{
 		extract($_args);
 ?>
-<div id=introduction>
-	<h2>Otestujte svoju tlačiareň</h2>
-	<p>Metóda Print & Scan umožnuje jednoducho a rýchlo otestovať kvalitu vašej tlačiarne iba v troch krokoch</p>
-	<ol class = "menu">
-			<li>Stiahnite si farebný vzor </li>
-			<li>Vytlačte a následne naskenujte farebný vzor</li>
-			<li>Uložte výsledný sken na stránku a zistite výsledok</li>
-	</ol>
-</div>
-<?php
-		/* line 13 */ $_tmp = $this->global->uiControl->getComponent("nextForm");
+<div style="min-height: 810px">
+	<div class="w3-container w3-center" style="padding: 300px 16px 300px 16px">
+	 	  <h1 class="w3-margin w3-jumbo w3-animate-top">Otestujte svoju tlačiareň</h1>
+		  <p class="w3-large" >Metóda Print & Scan umožnuje jednoducho a rýchlo otestovať kvalitu vašej tlačiarne iba v troch krokoch</p>
+		  <div style="margin:auto; display:inline-block"><?php
+		/* line 8 */ $_tmp = $this->global->uiControl->getComponent("nextForm");
 		if ($_tmp instanceof Nette\Application\UI\IRenderable) $_tmp->redrawControl(NULL, FALSE);
 		$_tmp->render();
-?>
-
-
-
-
+?></div>
+		
+	</div>
+</div>
 <?php
 	}
 

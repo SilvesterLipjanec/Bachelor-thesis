@@ -1,0 +1,82 @@
+{block content}
+<div style="min-height: 830px">
+	<div class="w3-container" style="padding: 126px 16px 50px 16px">
+	<h2 class="w3-xxlarge w3-border-bottom w3-section w3-padding-16 w3-animate-left padding-left-64">Najlepšie testy</h2>
+
+	{if $totalPages == 0}
+		<p>Zatiaľ neexistujú žiadne testy. Otestovať svoju tlačiareň môžete kliknutím na tlačidlo.</p>
+		{control nextForm}
+	{else}
+
+		{for $i = 1; $i <= $totalPages; $i++}
+				
+			    {if $i == $page}
+			    	<div class="padding-l-r-32">
+					<table class="w3-table-all w3-small w3-hoverable">
+						<tr class="w3-hover-white">
+							<th>&nbsp;</th>
+							<th>Značka</th>
+							<th>Model</th>
+							<th>Rozdiel červenej (%)</th>
+							<th>Rozdiel zelenej (%)</th>
+							<th>Rozdiel modrej (%)</th>
+							<th>Rozdiel spolu (%)</th>
+							<th>Šírka vzoru</th>
+							<th>Dátum testu</th>
+							<th>Rozlíšenie tlačiarne</th>
+							<th>Rozlíšenie skenera</th>			
+						</tr>	
+						{for $j = 0; $j < count($tests) ; $j++ }
+							<tr>
+								<td class="w3-border-right">{(($page-1)*$itemsPP)+$j+1}</td>
+								<td>{$tests[$j]->producer}</td>
+								<td>{$tests[$j]->model}</td>
+							    <td>{$tests[$j]->dif_r}</td>
+							    <td>{$tests[$j]->dif_g}</td>
+							    <td>{$tests[$j]->dif_b}</td>
+							    <td>{$tests[$j]->sum}</td>
+							    <td>{$tests[$j]->width}</td>
+							    <td>{$tests[$j]->date_time->format('d.m.Y H:i:s')}</td>
+							    <td>{$tests[$j]->printer_res}</td>
+							    <td>{$tests[$j]->scanner_res}</td>
+							    	    
+							</tr>
+						{/for}				
+				</table>
+				</div>	
+		    {/if}
+		{/for}
+	{/if}
+
+	</div>
+
+	 <div class="w3-center" style="margin-bottom:32px">
+		<div class="w3-bar">
+		  {if $page == 1}
+		  	<a href="#" class="w3-bar-item w3-button">&laquo;</a>
+		  {else}
+		  	<a n:href="Stats:stats $page-1, $totalPosts" class="w3-bar-item w3-button">&laquo;</a>
+		  {/if}
+		  
+		  {for $i = 1; $i <= $totalPages; $i++}
+		  		{if $i == $page}
+		  			<a class="w3-bar-item w3-button w3-grey" n:href="Stats:stats $i, $totalPosts">{$i}</a>
+		  		{else}
+		  			<a class="w3-bar-item w3-button" n:href="Stats:stats $i, $totalPosts">{$i}</a>
+		  		{/if}
+		  {/for}
+		 
+		  {if $page == $totalPages}
+		  	<a href="#" class="w3-bar-item w3-button">&raquo;</a>
+		  {else}
+		  	<a n:href="Stats:stats $page+1, $totalPosts" class="w3-bar-item w3-button">&raquo;</a>
+		  {/if}
+		</div>
+	</div>
+</div>
+
+
+
+
+
+

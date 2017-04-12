@@ -20,8 +20,10 @@
 #define CONSTH 35
 #define CONSTW 35
 #define PI 3.14159265 
-#define OFFCONST 400 
-
+#define OFFCONST 350
+#define cnt2 4913
+#define cnt3 2197
+#define cnt4 1000
 
 /** Kody chyb programu */
 enum tecodes
@@ -99,7 +101,7 @@ const char *HELPMSG =
         "Program pre analyzu PPM suborov.\n"
         "Autor: Silvester Lipjanec. \n"
         "analyze --help :sposobi, ze program vypise napovedu a skonci.\n"
-        "analyze [TARGET] :analyzuje subor formatu PPM zadany ako TARGET\n";
+        "analyze [TARGET] width :analyzuje subor formatu PPM zadany ako TARGET so sirkou vzoru width\n";
 
 
 /**
@@ -110,6 +112,7 @@ typedef struct params
   char *filename;    /**< Nazov suboru, ktory ma byt analyzovany*/
   int ecode;         /**< Chybovy kod programu, odpoveda tecodes. */
   int state;         /**< Stavovy kod programu, odpoveda tstates. */
+  int width;
 } TParams;
 
 /**
@@ -195,21 +198,8 @@ static PPMImage *read_data(char * filename)
 	return img;
 }
 
-void writePPM(const char *filename, PPMImage *img, Lines line, int dist)
-{/*
-	img->data[line.fst.r][line.fst.c].red = 255;
-	img->data[line.fst.r][line.fst.c].green = 0;
-	img->data[line.fst.r][line.fst.c].blue = 0;
-	img->data[line.lst.r][line.lst.c].red = 255;
-	img->data[line.lst.r][line.lst.c].green = 0;
-	img->data[line.lst.r][line.lst.c].blue = 0;*/
-	/*for(int i = 0 ; i < 20 ; i++)
-	{
-		img->data[line.fst.r][line.fst.c].red = 255;
-		img->data[line.fst.r][line.fst.c].green = 0;
-		img->data[line.fst.r][line.fst.c].blue = 0;
-		line.fst.c += dist;
-	}*/
+void writePPM(const char *filename, PPMImage *img)
+{
     FILE *fp;
     //open file for output
     fp = fopen(filename, "wb");
@@ -397,6 +387,7 @@ TParams getParams(int argc, char *argv[])
   	
     .ecode = EOK,
     .state = SORDINAL,
+    .width = 0
   };
 
   if(argc == 2)
@@ -405,12 +396,15 @@ TParams getParams(int argc, char *argv[])
 	{
 		result.state = SHELP;
 	}
-	else
-	{
-		result.filename = argv[1];
-		result.state = SANALYZE;
-	}
+	else result.ecode = ECLWRONG;
+	
   }
+  else if( argc == 3)
+  {
+	result.filename = argv[1];
+	result.width = atoi(argv[2]);
+	result.state = SANALYZE;
+ }
   else
   { // nespravny pocet parametrov
     result.ecode = ECLWRONG;
@@ -497,7 +491,7 @@ int *findVertLines(PPMImage *img, Lines line, Point *StHorPt, int *Ccnt)
 	MidNextInfo Vinf;
 	Point actV = line.fst;		
 	int *vert;
-
+	int c = 0;
 	if((vert = (int *)malloc(sizeof(int*))) == NULL)
 	{
 		printECode(EALLOC);
@@ -507,11 +501,13 @@ int *findVertLines(PPMImage *img, Lines line, Point *StHorPt, int *Ccnt)
 
 	Vinf = findVertInfo(img , actV.r , actV.c);
 	actV.r = Vinf.mid;
-	StHorPt->r = Vinf.nextWhite - 1;
+	StHorPt->r = Vinf.nextWhite;	
 	StHorPt->c = actV.c;
+
 	//hladaj dalsiu vertikalnu linu v smere x
  	while(actV.c < line.lst.c)
 	{
+
 		*Ccnt += 1;
 		if((vert = (int *)realloc(vert,*Ccnt*sizeof(int *))) == NULL)
 		{
@@ -523,8 +519,16 @@ int *findVertLines(PPMImage *img, Lines line, Point *StHorPt, int *Ccnt)
 		vert[*Ccnt-1] = Hinf.mid;
 		writePoint(img, actV.r, Hinf.mid);
 		actV.c = findNextHoriz(img, actV.r, actV.c, line.lst.c );
+		if(c == 0)
+		{
+			c++;
+			StHorPt->c = StHorPt->c - ((actV.c - StHorPt->c)/2);
+		}
 	}
-
+	if(!isBlack(img,StHorPt->r,StHorPt->c))
+	{
+		StHorPt->r--;
+	}
 	//Hladaj pociatocny bod prvej horizontalnej liny
 	while(isBlack(img,StHorPt->r,StHorPt->c))
 	{
@@ -552,7 +556,7 @@ int *findHorizLines(PPMImage*img, Point actH, int *Rcnt)
     	exit(2);
 	}
 
-	Hinf = findHorizInfo(img, actH.r, actH.c);
+	Hinf = findHorizInfo(img, actH.r, actH.c);	
 	actH.c = Hinf.mid;
 
 	//hladaj dalsiu horizontalnu linu v smere y
@@ -593,13 +597,24 @@ PPMPixel findPixelVal(PPMImage* img,int* vertIndex,int* horizIndex, int idR, int
 		.green = 0,
 		.blue = 0
 	};
+	
+	/*				
+	printf("tu som\n");
+	printf("SR %d\n",SR);
+	printf("ER %d\n",ER);
+
+	printf("SC %d\n",SC);
+	printf("EC %d\n",EC);
+	writePoint(img,SR,SC);*/
 	int cnt = 0;
+	
 	for(int r = SR ; r < ER ; r++)
 	{
+	
+
 		for(int c = SC ; c < EC ; c++)
 		{
-
-			cnt++;			
+			cnt++;	
 			red += img->data[r][c].red;
 			green += img->data[r][c].green;
 			blue += img->data[r][c].blue;
@@ -662,8 +677,8 @@ int main(int argc, char *argv[])
     	int Ccnt = 0;
     	
     	image = read_data(params.filename);
-    	
     	line = findVertPts(image);
+    	
     	
     	//ak farebny vzor nieje rovno
     	/*printf("%d %d \n",line.fst.r, line.fst.c );
@@ -697,10 +712,9 @@ int main(int argc, char *argv[])
     	printf("%d %d \n",line.lst.r, line.lst.c ); 
     	*/
 
-    	vertIndex = findVertLines(image, line, &StHorPt, &Ccnt);    	
-    	
+    	vertIndex = findVertLines(image, line, &StHorPt, &Ccnt);  
     	horizIndex = findHorizLines(image, StHorPt, &Rcnt);
-
+		
  		
  		PPMPixel area[Ccnt - 3][Rcnt - 3];
  		area[0][0].red = 255;
@@ -715,11 +729,13 @@ int main(int argc, char *argv[])
  		int sucetG = 0;
  		int sucetB = 0;
  		int pocet = 0;
-
+ 		int br = 0;
  		pom_filename[strlen(pom_filename)-4] = 0;
+ 		//sprintf(vysl_filename,"./data/%s.txt",pom_filename);
  		sprintf(vysl_filename,"./data/%s.txt",pom_filename);
 
 		file = fopen(vysl_filename, "wb");
+		
  		for(int r = 1 ; r <= Rcnt - 3 ; r++)
  		{
  			for(int c = 1 ; c <= Ccnt - 3 ; c++)
@@ -730,17 +746,40 @@ int main(int argc, char *argv[])
  				sucetR = sucetR + area[r][c].red;
  				sucetG = sucetG + area[r][c].green;
  				sucetB = sucetB + area[r][c].blue;
+ 				
+ 				switch(params.width)
+ 				{
+ 					case 2:
+ 						if(pocet >= cnt2)
+ 							br = 1;
+ 						break;
+ 					case 3:
+ 						if(pocet >= cnt3)
+ 							br = 1;
+ 						break;
+ 					case 4:
+ 						if(pocet >= cnt4)
+ 							br = 1;
+ 						break;
+ 						
+ 				}
+ 				if(br) break;
  			}
+ 			if(br) break;
  		}
- 		priemerR = sucetR / pocet;
- 		priemerG = sucetG / pocet;
- 		priemerB = sucetB / pocet;
- 		fprintf(file, "%.1f\t",priemerR );
- 		fprintf(file, "%.1f\t",priemerG );
- 		fprintf(file, "%.1f",priemerB );
+    	
+ 		priemerR = (float)sucetR / (float)pocet;
+ 		priemerG = (float)sucetG / (float)pocet;
+ 		priemerB = (float)sucetB / (float)pocet;
+ 		
+ 		//writePPM("analyzedImage.ppm",image);
+ 		
+ 		fprintf(file, "%d\t",(int)round(priemerR));
+ 		fprintf(file, "%d\t",(int)round(priemerG));
+ 		fprintf(file, "%d\t",(int)round(priemerB));
+ 		
 
  		fclose(file);
-    	//writePPM("analyzedImage.ppm",image,line,1);
     	deallocMem(image);
     	deallocIndexes(vertIndex,horizIndex);
  

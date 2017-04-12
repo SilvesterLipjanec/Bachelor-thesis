@@ -1,11 +1,13 @@
 {block content}
-<h2 n:block=subtitle>Prihlásenie</h2>
+<div style="min-height: 830px">
+	<div class="w3-container w3-center" style="padding: 150px 16px 100px 16px">
+		<h2 class="w3-xxlarge w3-border-bottom w3-section w3-padding-32">Prihlásenie</h2>
 
-{control signInForm}
+		<div style="margin:auto; display:inline-block">{control signInForm}</div>
 
-{* OR
-{import '../components/form.latte'}
-{include form signInForm}
-*}
+		<h4 class="w3-border-top w3-padding-16">Ešte nie ste registrovaný?</h4>
+		<div><a n:href="up" class="w3-button w3-grey">Registrovať sa</a></div> 
+	</div>
+</div>
 
-<p><a n:href="up">Ešte nie ste registrovaný? Registrujte sa tu.</a></p>
+{/block}

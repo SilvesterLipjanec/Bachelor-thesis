@@ -1,4 +1,18 @@
-{block content}
+
+<div class="w3-container" style="padding: 150px 16px">
 <h2 n:block=subtitle>Boli ste odhlásený</h2>
 
 <p><a n:href="in">Prihlásiť sa pomocou iného účtu.</a></p>
+</div>
+
+
+{block content}
+<div style="min-height: 830px">
+	<div class="w3-container w3-center" style="padding: 150px 16px 100px 16px">
+		<h2 class="w3-xxlarge w3-border-bottom w3-section w3-padding-32">Boli ste odhlásený</h2>
+		<h4 class="w3-padding-16">Prihlásiť sa pomocou iného účtu</h4>
+		<div><a n:href="in" class="w3-button w3-grey">Prihlásiť sa</a></div> 
+	</div>
+</div>
+
+{/block}
