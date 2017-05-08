@@ -6,6 +6,7 @@ use Nette;
 use Nette\Security\Passwords;
 
 	define("ERR", -999);
+	define("OK", 0);
 
 
 class DatabaseRepository
@@ -24,7 +25,7 @@ class DatabaseRepository
 		$test_sets = $this->database->table('Test_set')->where('id_user',$id_user);
 		$sets = array();
 		foreach ($test_sets as $set) {
-			$sada = $set->id_set.' - '.$set->producer.', '.$set->model.', '.$set->set_note;
+			$sada = $set->producer.', '.$set->model.', typ: '.$set->type.', '.$set->set_note;
 			$sets[$set->id_set] = $sada;
 		}
 		return $sets;
@@ -59,15 +60,9 @@ class DatabaseRepository
 		$values['green'] = $rgb['g'];
 		$values['blue'] = $rgb['b'];
 		$ref = $this->getReference($width);
-		/*
-		$values['dif_r'] = number_format((($values['red']*100)/($ref->red)-100),2);		
-		$values['dif_g'] = number_format((($values['green']*100)/($ref->green)-100),2);
-		$values['dif_b'] = number_format((($values['blue']*100)/($ref->blue)-100),2);
-*/		
-
-		$values['dif_r'] = number_format(((($ref->red*100)/255)-(($values['red']*100)/255)),2);		
-		$values['dif_g'] = number_format(((($ref->green*100)/255)-(($values['green']*100)/255)),2);
-		$values['dif_b'] = number_format(((($ref->blue*100)/255)-(($values['blue']*100)/255)),2);
+		$values['dif_r'] = number_format(((($values['red']*100)/255) - (($ref->red*100)/255)),2);		
+		$values['dif_g'] = number_format(((($values['green']*100)/255) - (($ref->green*100)/255)),2);
+		$values['dif_b'] = number_format(((($values['blue']*100)/255) - (($ref->blue*100)/255)),2);
 		$values['width'] = $width;
 		if($values['printer_res'] == '')
 			unset($values['printer_res']);
@@ -80,23 +75,27 @@ class DatabaseRepository
 	}
 	public function insertResultForExistSet($values,$form)
 	{
-		$file = $form->getParameter('file');
+		$rgb['r'] = $form->getParameter('r');
+		$rgb['g'] = $form->getParameter('g');
+		$rgb['b'] = $form->getParameter('b');
 		$width = $form->getParameter('width');
-		$rgb = $this->readResultFromFile($file);
+		/*$rgb = $this->readResultFromFile($file);
 		if($rgb == ERR)
-		{
+		{	
 			return ERR;
-		}
+		}*/
 		$values = $this->fillRecord($values,$rgb,$width);
 		$row_test = $this->database->table('Test')->insert($values);
-		exec('rm '.$file);
+		//exec('rm '.$file);
 		return $row_test->getPrimary();
 	}
 	public function insertResultForNewSet($values,$form,$id_user)
 	{	
-		$file = $form->getParameter('file');
+		$rgb['r'] = $form->getParameter('r');
+		$rgb['g'] = $form->getParameter('g');
+		$rgb['b'] = $form->getParameter('b');		
 		$width = $form->getParameter('width');
-		$values['id_user'] = 0;
+		$values['id_user'] = null;
 		if($id_user != -99)	//je prihlaseny
 		{
 			$values['id_user'] = $id_user;
@@ -114,11 +113,11 @@ class DatabaseRepository
 		if($values['set_note'] == '')
 			unset($values['set_note']);
 
-		$rgb = $this->readResultFromFile($file);
+		/*$rgb = $this->readResultFromFile($file);
 		if($rgb == ERR)
 		{
 			return ERR;
-		}
+		}*/
 		$row = $this->database->table('Test_set')->insert($values);
 		$test_val['id_set'] = $row->getPrimary();
 		
@@ -126,7 +125,7 @@ class DatabaseRepository
 		$row_test = $this->database->table('Test')->insert($test_val);
 		unset($test_val);
 		unset($values);
-		exec('rm '.$file);
+		//exec('rm '.$file);
 		return $row_test->getPrimary();
 	}
 
@@ -142,6 +141,11 @@ class DatabaseRepository
 	{
 		return $this->database->table('Test_set')->where('id_user',$id_user);
 	}
+	public function getAllSets()
+	{
+		return $this->database->table('Test_set')->where('NOT id_set',0);
+	}
+	
 	public function getNumberTests($id_set)
 	{
 		return $this->database->table('Test')->where('id_set',$id_set)->count();
@@ -150,17 +154,26 @@ class DatabaseRepository
 	{
 		return $this->database->table('Test_set')->where('id_user',$id_user)->count();
 	}
+	public function getNumberSets()	
+	{
+		return $this->database->table('Test_set')->count();
+	}
 	public function getSetDetail($id_set)
 	{
 		return $this->database->table('Test_set')->where('id_set',$id_set)->fetch();
 	}
 	public function getTestsForSet($id_set)
 	{
-		return $this->database->table('Test')->where('id_set',$id_set);
+		return $this->database->table('test_v')->where('set',$id_set);
 	}
-	public function getTestsForSetCount($id_set)
+	public function getTestsForSetCount($id_set,$filter)
 	{
-		return $this->database->table('Test')->where('id_set',$id_set)->count();
+		$table = $this->database->table('test_v')->where('set',$id_set);
+
+		if ($filter) {
+			$table->where('test', $filter);
+		}
+		return $table->count();
 	}
 	public function deleteTest($id_test)
 	{
@@ -176,7 +189,8 @@ class DatabaseRepository
 	}
 	public function getProducers()
 	{
-		$producers = $this->database->table('Test_set')->select('producer')->group('producer');
+		
+		$producers = $this->database->table('test_v')->select('producer')->group('producer');
 		
 		$prod = array();
 		foreach ($producers as $producer) {
@@ -185,30 +199,70 @@ class DatabaseRepository
 		return $prod;
 		
 	}
-	public function getModels($prod)
+	public function getModels($prod = null)
 	{
 		
-		$models = $this->database->table('Test_set')->select('model')->where('producer',$prod)->group('model');
-		$mod = array();
-		foreach ($models as $model) {
-			$mod[$model->model] = $model->model;
+		$models = $this->database->table('Test_set')->select('model,producer');
+
+		if (!is_null($prod)) {
+			$models->where('producer', $prod);
 		}
-		return $mod;
+
+		$models->group('model');
+
+		return $models;
 	}
 	public function findTests($prod,$model)
 	{
 		return $this->database->table('test_v')->where('producer',$prod)->where('model',$model);
 	}
-	public function findTestsCount($prod,$model)
+	public function findTestsCount($prod,$model,$filter)
 	{
-		return $this->database->table('test_v')->where('producer',$prod)->where('model',$model)->count();
+		$table = $this->database->table('test_v')->where('producer',$prod)->where('model',$model);
+
+		if ($filter) {
+			$table->where('test', $filter);
+		}
+		return $table->count();
 	}
 	public function findBestTests()
 	{
 		return $this->database->table('test_v');
 	}
-	public function bestTestCount()
+	public function bestTestCount($filter)
 	{
-		return $this->database->table('test_v')->count();
+		$table = $this->database->table('test_v');
+
+		if ($filter) {
+			$table->where('test', $filter);
+		}
+
+		return $table->count();
 	}
+	public function findUserByToken($token)
+	{
+		return $this->database->table('Users')->where('token',$token)->fetch();
+	}
+	public function acitvateAccount($token)
+	{
+		$data['token'] = NULL;
+		$cnt =  $this->database->table('Users')->where('token',$token)->update($data);
+		if($cnt != 1)
+		{
+			return ERR;
+		}
+		else
+		{
+			return OK;
+		}
+	}
+	public function findUserByName($username)
+	{
+		return $this->database->table('Users')->where('login',$username)->fetch();
+	}
+	public function getUserById($id_user)
+	{
+		return $this->database->table('Users')->where('id_user',$id_user)->fetch();
+	}
+	
 }

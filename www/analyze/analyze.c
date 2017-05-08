@@ -1,31 +1,43 @@
 /*
- * Soubor:  proj3.c
- * Datum:   7.12.2014
- * Autor:   Silvester Lipjanec, xlipja01@stud.fit.vutbr.cz
- * Projekt: Prechod bludiskom, projekt c. 3 pre predmet IZP
- * Popis:   Program, který v daném bludišti a jeho vstupu najde průchod ven.
-            Bludiště je uloženo v textovém souboru ve formě obdélníkové matice
-            celých čísel. Prodram výpisuje souřadnice políček bludiště,
-            přes které vede cesta z vchodu bludiště do jeho východu.
+ * Soubor:  analyze.c
+ * Datum:   5.5.2017
+ * Autor:   Silvester Lipjanec (c), xlipja01@stud.fit.vutbr.cz
+ * Projekt: Anlýza tlačového vzoru
+ * Popis:   Program analyzuje tlačový vzor
+ 			Výstupom programu je textový súbor obsahujúci 
+ 			3 priemerné hodnoty červenej, zelenej a modrej 
+ 			farebnej zložky z farebého modelu RGB, ktoré sú
+ 			získané analýzov tlačového vzoru
 
  */
-
+/*
+použité knižnice
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 #include <math.h>
-
-#define THRESHOLD 150
+/*
+definícia konštantých hodnôt
+*/
+#define THRESHOLD 180 //prahová hodnota pri hľadaní čiernej farby
 #define CONSTH 35
 #define CONSTW 35
 #define PI 3.14159265 
 #define OFFCONST 350
-#define cnt2 4913
+#define cnt2 4913 
 #define cnt3 2197
 #define cnt4 1000
+#define C2cnt 88 //počet vertikálných pomocných čiar v smere x pre vzor 2mm
+#define R2cnt 61
+#define C3cnt 58
+#define R3cnt 43
+#define C4cnt 43
+#define R4cnt 29
+#define ERC 1.7 //end row const (ER = height / ERC)
 
-/** Kody chyb programu */
+/** Kódy chyb programu */
 enum tecodes
 {
   EOK = 0,     /**< Bez chyby */
@@ -40,9 +52,9 @@ enum tecodes
 /** Stavove kody programu */
 enum tstates
 {
-  SHELP,         /**< Napoveda */
+  SHELP,         /**< Pomoc programu */
   SORDINAL,      /**< Poradie dane ordinalnymi hodnotami. */
-  SANALYZE
+  SANALYZE		 /**< Analýza vzoru */
 };
 
 
@@ -76,7 +88,7 @@ typedef struct
 	Point lst;	
 }Lines;
 
-/** Definovanie štruktúry, ktorá uchováva info. o pozícii v strede liny 
+/** Definovanie štruktúry, ktorá uchováva info. o pozícii v strede čiary 
 a pozícii nasledujúcej bielej oblasti v jednom smere */
 typedef struct
 {
@@ -86,7 +98,7 @@ typedef struct
 
 
 
-/** Chybová hlasenia odpovedajuce chybovym kodom. */
+/** Chybové hlásenia odpovedajúe chybovým kódom. */
 const char *ECODEMSG[] =
 {
   [EOK] = "Vsetko v poriadku.\n",
@@ -97,6 +109,8 @@ const char *ECODEMSG[] =
   [EALLOC] = "Chyba pri alokacii pamate!\n",
   [EREAD] = "Nastala chyba pri citani suboru!\n"
 };
+
+/** Nápoveda programu */
 const char *HELPMSG =
         "Program pre analyzu PPM suborov.\n"
         "Autor: Silvester Lipjanec. \n"
@@ -105,18 +119,17 @@ const char *HELPMSG =
 
 
 /**
- * Struktura obsahujuca hodnoty parametrov prikazoveho riadku.
+ * Štruktúra obsahujúca hodnoty parametrov príkazového riadku.
  */
 typedef struct params
 {
-  char *filename;    /**< Nazov suboru, ktory ma byt analyzovany*/
-  int ecode;         /**< Chybovy kod programu, odpoveda tecodes. */
-  int state;         /**< Stavovy kod programu, odpoveda tstates. */
+  char *filename;    /**< Názov vstupného súboru*/
+  int ecode;         /**< Chybovy kod programu, odpoveyýda tstates. */
   int width;
 } TParams;
 
 /**
- * Vypise hlasenie odpovedajuce chybovemu kodu
+ * Vypíše hlásenie odpovedajúce chybovému kódu
  * @param ecode kod chyby programu
  */
 void printECode(int ecode)
@@ -197,7 +210,11 @@ static PPMImage *read_data(char * filename)
 
 	return img;
 }
-
+/**
+ * Funkcia pre zápis súboru vo formáte PPM
+ * @param *filename Názov obrázka, ktorý sa ukladá 
+ * @param *img šturkutúra obsahujúca data obrázku
+ */
 void writePPM(const char *filename, PPMImage *img)
 {
     FILE *fp;
@@ -232,7 +249,7 @@ void writePPM(const char *filename, PPMImage *img)
  * @param img Obrázok
  * @param r Súradnica y
  * @param c Súradnica x
- * @return Vracia true ak je hod. fareb. zloziek mensia ako threshold - cierna farba ? true
+ * @return true ak je hod. fareb. zložiek menšia ako threshold - čierna farba ? true
  */
 bool isBlack(PPMImage*img, int r, int c)
 {
@@ -242,25 +259,39 @@ bool isBlack(PPMImage*img, int r, int c)
 	    return true;
 	else return false;
 }
+/**
+ * Pomocná funkcia pre zápis pixelu červenej farby
+ * @param img Obrázok
+ * @param r Súradnica y
+ * @param c Súradnica x
+ */
 void writePoint(PPMImage*img, int r, int c)
 {
 	img->data[r][c].red = 255;
 	img->data[r][c].green = 0;
 	img->data[r][c].blue = 0;
 }
+/**
+ * Pomocná funkcia pre zápis pixelu danej farby
+ * @param img Obrázok
+ * @param r Súradnica y
+ * @param c Súradnica x
+ * @param red Hod. červenej far. zložky
+ * @param green Hod. zelenej far. zložky
+ * @param blue Hod. modrej far. zložky
+ */
 void writePointVal(PPMImage*img, int r, int c,int red,int green,int blue)
 {
 	img->data[r][c].red = red;
 	img->data[r][c].green = green;
 	img->data[r][c].blue = blue;
 }
-
+/*
 void printPoint(PPMImage*img, int r, int c)
 {
 	printf("R: %d G: %d B: %d\n",img->data[r][c].red,img->data[r][c].green ,img->data[r][c].blue);
-
 }
-
+*/
 /**
  * Hľadá vrchol počiatočnej a koncovej vrchnej vertikálnej pomocnej čiary
  * @param img Obrázok, v ktorom sa hľadajú pomocné čiary
@@ -273,7 +304,7 @@ Lines findVertPts(PPMImage *img)
 	int br = 0; 
 	int SC = img->width / CONSTW; //SC = start column
 	int SR = img->height / CONSTH; //SR = start row
-	int ER = img->height / 1.7; //ER = end row
+	int ER = img->height / ERC; //ER = end row
 	int EC = img->width - SC; //EC = end column
 	
 	//find point of first vertical line 	
@@ -371,8 +402,6 @@ double findAngle(Lines line)
 	return i ? angle : -angle;
 }
 
-
-
 /**
  * Spracuje argumenty príkazového riadka a vráti ich v štruktúre TParams.
  * Ak sú zadané chybné parameter vráti štruktúru s chybovým kódom.
@@ -413,7 +442,10 @@ TParams getParams(int argc, char *argv[])
   return result;
 }
 
-
+/**
+ * Funkcia pre delokáciu použitej pamäte obrázka
+ * @param *img ukazateľ na pamäť, obrázka 
+ */
 void deallocMem(PPMImage *img)
 {
 	//alokacia pamate pre data typu PPMPixel
@@ -425,6 +457,11 @@ void deallocMem(PPMImage *img)
 	free(img->data);
 	free(img);	
 }
+/**
+ * Funkcia pre delokáciu indexov 
+ * @param *vert vertikálny index
+ * @param *horiz Horizovtálny index
+ */
 void deallocIndexes(int *vert, int *horiz)
 {
 	free(vert);
@@ -432,12 +469,11 @@ void deallocIndexes(int *vert, int *horiz)
 }
 
 /**
- * Funkcia na vyhladanie cisla riadku v strede liny vo vertikalnom smere 
+ * Funkcia na vyhladanie cisla stĺpca v strede horizontálnej čiary v smere y 
  * @param r Riadok vrcholu liny
  * @param c Stlpec vrcholu liny
- * @return Vracia riadok v strede liny
+ * @return Vracia stĺpec v strede liny
  */
-
 MidNextInfo findHorizInfo(PPMImage *img, int r, int c)
 {
 	MidNextInfo inf = {
@@ -453,6 +489,12 @@ MidNextInfo findHorizInfo(PPMImage *img, int r, int c)
 	inf.mid = c + ((col - c - 1) / 2);
 	return inf;
 }
+/**
+ * Funkcia na vyhľadanie čísla riadku v strede vertikálnej čiary v smere x 
+ * @param r Riadok vrcholu liny
+ * @param c Stlpec vrcholu liny
+ * @return Vracia riadok v strede liny
+ */
 MidNextInfo findVertInfo(PPMImage *img, int r, int c)
 {
 	MidNextInfo inf = {
@@ -468,6 +510,12 @@ MidNextInfo findVertInfo(PPMImage *img, int r, int c)
 	inf.mid = r + ((row - r - 1) / 2);
 	return inf;
 }
+/**
+ * Funkcia pre vyhľadanie nasledujúcej vertikálnej čiary v smere x
+ * @param r Index riadku počiatku hľadania
+ * @param c Index stĺpca počiatku hľadania
+ * @return Index stĺpca nasledujúcej čiary
+ */
 int findNextHoriz(PPMImage *img, int r, int c , int EC)
 {	
 	while(!isBlack(img,r,c) && c < EC)
@@ -476,6 +524,12 @@ int findNextHoriz(PPMImage *img, int r, int c , int EC)
 	}
 	return c;
 }
+/**
+ * Funkcia pre vyhľadanie nasledujúcej horizontálnej čiary v smere y
+ * @param r Index riadku počiatku hľadania
+ * @param c Index stĺpca počiatku hľadania
+ * @return Index riadku nasledujúcej čiary
+ */
 int findNextVert(PPMImage *img, int r, int c, int ER)
 {	
 	while(!isBlack(img,r,c) && r < ER)
@@ -484,7 +538,14 @@ int findNextVert(PPMImage *img, int r, int c, int ER)
 	}
 	return r;
 }
-
+/**
+ * Funkcia pre vyhľadanie vertikálnych čiar
+ * @param *img PPM obrázok
+ * @param line Štruktúra bodov prvej a poslednej vertikálnej čiary
+ * @param *StHorPt Počiatočný bod hľadania v smere y
+ * @param *Ccnt ukazateľ na počet nájdených čiar v smere x
+ * @return Pole obsahujúce indexy sĺpcov nájdených čiar
+ */
 int *findVertLines(PPMImage *img, Lines line, Point *StHorPt, int *Ccnt)
 {
 	MidNextInfo Hinf;	
@@ -503,9 +564,9 @@ int *findVertLines(PPMImage *img, Lines line, Point *StHorPt, int *Ccnt)
 	actV.r = Vinf.mid;
 	StHorPt->r = Vinf.nextWhite;	
 	StHorPt->c = actV.c;
-
+	
 	//hladaj dalsiu vertikalnu linu v smere x
- 	while(actV.c < line.lst.c)
+ 	while(actV.c <= line.lst.c)
 	{
 
 		*Ccnt += 1;
@@ -543,11 +604,18 @@ int *findVertLines(PPMImage *img, Lines line, Point *StHorPt, int *Ccnt)
 	
 	return vert;
 }
+/**
+ * Funkcia pre vyhľadanie horizotálnych čiar
+ * @param *img PPM obrázok
+ * @param actH Ukazateľ na počiatočný bod hľadania 
+ * @param *Rcnt ukazateľ na počet nájdených čiar v smere y
+ * @return Pole obsahujúce indexy riadkov nájdených čiar
+ */
 int *findHorizLines(PPMImage*img, Point actH, int *Rcnt)
 {
 	MidNextInfo Hinf;	
 	MidNextInfo Vinf;
-	int ER = img->height / 1.7; //ER = end row
+	int ER = img->height / ERC; //ER = end row
 	int *horiz;
 
 	if((horiz = (int *)malloc(sizeof(int*))) == NULL)
@@ -580,7 +648,15 @@ int *findHorizLines(PPMImage*img, Point actH, int *Rcnt)
 		
 	return horiz;
 }
-
+/**
+ * Funkcia pre zistenie priemerných farebných zložiek oblasti danej indexami
+ * @param *img PPM obrázok
+ * @param *vertIndex Pole obsahujúce indexy vertikálnych čiar
+ * @param *horizIndex Pole obsahujúce indexy horizontálnych čiar
+ * @param idR index  farebnej oblasti v smere y
+ * @param idC index  farebnej oblasti v smere x
+ * @return Štruktúra s priemernými farebnými zložkami
+ */
 PPMPixel findPixelVal(PPMImage* img,int* vertIndex,int* horizIndex, int idR, int idC)
 {
 	
@@ -597,21 +673,10 @@ PPMPixel findPixelVal(PPMImage* img,int* vertIndex,int* horizIndex, int idR, int
 		.green = 0,
 		.blue = 0
 	};
-	
-	/*				
-	printf("tu som\n");
-	printf("SR %d\n",SR);
-	printf("ER %d\n",ER);
-
-	printf("SC %d\n",SC);
-	printf("EC %d\n",EC);
-	writePoint(img,SR,SC);*/
 	int cnt = 0;
 	
 	for(int r = SR ; r < ER ; r++)
 	{
-	
-
 		for(int c = SC ; c < EC ; c++)
 		{
 			cnt++;	
@@ -628,15 +693,40 @@ PPMPixel findPixelVal(PPMImage* img,int* vertIndex,int* horizIndex, int idR, int
 	for(int r = SR ; r < ER ; r++)
 	{
 		for(int c = SC ; c < EC ; c++)
-		{
-			
-			writePointVal(img,r,c,px.red,px.green,px.blue);
-			
+		{			
+			writePointVal(img,r,c,px.red,px.green,px.blue);	
 		}
 	}
 	return px;
 }
-
+/**
+ * Funkcia pre kontrolu správnosti počtu nájdených pomocných čiar
+ * @param Rcnt počet nájdených horizotánych čiar v smere y
+ * @param Ccnt počet nájdených vertikálnych čiar v smere x
+ * @param width šírka farebného vzoru
+ * @return 1 ak je počet správny 
+ */
+int isNumLinesOk(int Rcnt, int Ccnt,int width)
+{
+	switch(width)
+	{
+		case 2:
+			if(Rcnt != R2cnt || Ccnt != C2cnt)
+				return 0;
+			break;
+		case 3:
+			if(Rcnt != R3cnt || Ccnt != C3cnt)
+				return 0;
+			break;
+		case 4:
+			if(Rcnt != R4cnt || Ccnt != C4cnt)
+				return 0;
+			break;
+			
+	}
+	return 1;
+ 				
+}
 
 
 /////////////////////////////////////////////////////////////////
@@ -680,14 +770,11 @@ int main(int argc, char *argv[])
     	line = findVertPts(image);
     	
     	
-    	//ak farebny vzor nieje rovno
-    	/*printf("%d %d \n",line.fst.r, line.fst.c );
-    	printf("%d %d \n",line.lst.r, line.lst.c );
-		*/
+    	
     	char * pch = strrchr(params.filename,'/');
     	memcpy(pom_filename,pch+1,strlen(params.filename)- (pch-params.filename));
     	
-    	if(line.fst.r != line.lst.r)
+    	if(line.fst.r != line.lst.r) //farebný vzor nieje rovno, potrebné vyrovnanie
     	{
     		
     		sprintf(alg_filename,"./data/alg_%s",pom_filename);
@@ -703,18 +790,19 @@ int main(int argc, char *argv[])
     		deallocMem(image);
 		
     		image = read_data(alg_filename);
-    		line = findVertPts(image);
-    		
+    		line = findVertPts(image);   		
     		  	
     	}
-		/*printf("vyrovnany\n");
-    	printf("%d %d \n",line.fst.r, line.fst.c );
-    	printf("%d %d \n",line.lst.r, line.lst.c ); 
-    	*/
-
+		
     	vertIndex = findVertLines(image, line, &StHorPt, &Ccnt);  
     	horizIndex = findHorizLines(image, StHorPt, &Rcnt);
-		
+		//writePPM("./data/analyzedImage.ppm",image);
+ 		if(!isNumLinesOk(Rcnt,Ccnt,params.width))
+		{
+			deallocMem(image);
+    		deallocIndexes(vertIndex,horizIndex);
+			return EXIT_FAILURE;
+		}
  		
  		PPMPixel area[Ccnt - 3][Rcnt - 3];
  		area[0][0].red = 255;
@@ -731,9 +819,8 @@ int main(int argc, char *argv[])
  		int pocet = 0;
  		int br = 0;
  		pom_filename[strlen(pom_filename)-4] = 0;
- 		//sprintf(vysl_filename,"./data/%s.txt",pom_filename);
  		sprintf(vysl_filename,"./data/%s.txt",pom_filename);
-
+ 		
 		file = fopen(vysl_filename, "wb");
 		
  		for(int r = 1 ; r <= Rcnt - 3 ; r++)
@@ -742,7 +829,7 @@ int main(int argc, char *argv[])
  			{	
  				pocet ++;
 				area[r][c] = findPixelVal(image, vertIndex,horizIndex, r,c);
- 				//fprintf(file,"%d %d %d\n", area[r][c].red,area[r][c].green,area[r][c].blue);
+
  				sucetR = sucetR + area[r][c].red;
  				sucetG = sucetG + area[r][c].green;
  				sucetB = sucetB + area[r][c].blue;
@@ -770,14 +857,11 @@ int main(int argc, char *argv[])
     	
  		priemerR = (float)sucetR / (float)pocet;
  		priemerG = (float)sucetG / (float)pocet;
- 		priemerB = (float)sucetB / (float)pocet;
- 		
- 		//writePPM("analyzedImage.ppm",image);
- 		
+ 		priemerB = (float)sucetB / (float)pocet; 		
+ 		//vypis vyslednych priemernych hodnôt so súboru
  		fprintf(file, "%d\t",(int)round(priemerR));
  		fprintf(file, "%d\t",(int)round(priemerG));
- 		fprintf(file, "%d\t",(int)round(priemerB));
- 		
+ 		fprintf(file, "%d\t",(int)round(priemerB)); 		
 
  		fclose(file);
     	deallocMem(image);
@@ -789,4 +873,4 @@ int main(int argc, char *argv[])
   return EXIT_SUCCESS;
 }
 
-/* konec BP */
+/* koniec analyze.c */

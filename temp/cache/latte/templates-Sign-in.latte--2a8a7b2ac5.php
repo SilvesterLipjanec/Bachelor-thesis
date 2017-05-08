@@ -35,17 +35,19 @@ class Template2a8a7b2ac5 extends Latte\Runtime\Template
 	{
 		extract($_args);
 ?>
-<div class="w3-container w3-center" style="padding: 150px 16px 200px 16px">
-	<h2 class="w3-xxlarge w3-border-bottom w3-section w3-padding-32">Prihlásenie</h2>
+<div style="min-height: 830px">
+	<div class="w3-container w3-center" style="padding: 150px 16px 100px 16px">
+		<h2 class="w3-xxlarge w3-border-bottom w3-section w3-padding-32">Prihlásenie</h2>
 
-	<div style="margin:auto; display:inline-block"><?php
-		/* line 5 */ $_tmp = $this->global->uiControl->getComponent("signInForm");
+		<div style="margin:auto; display:inline-block"><?php
+		/* line 6 */ $_tmp = $this->global->uiControl->getComponent("signInForm");
 		if ($_tmp instanceof Nette\Application\UI\IRenderable) $_tmp->redrawControl(NULL, FALSE);
 		$_tmp->render();
 ?></div>
 
-	<h4 class="w3-border-top w3-padding-16">Ešte nie ste registrovaný?</h4>
-	<a class="w3-button w3-grey" href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("up")) ?>">Registrovať sa</a></button> 
+		<h4 class="w3-border-top w3-padding-16">Ešte nie ste registrovaný?</h4>
+		<div><a class="w3-button w3-grey" href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("up")) ?>">Registrovať sa</a></div> 
+	</div>
 </div>
 
 <?php

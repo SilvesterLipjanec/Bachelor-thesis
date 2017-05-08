@@ -1,52 +1,87 @@
 {block content}
 <div style="min-height: 830px">
-	<div class="w3-container" style="padding: 126px 16px 50px 16px">
-	<h2 class="w3-xxlarge w3-border-bottom w3-section w3-padding-16 w3-animate-left padding-left-64">Najlepšie testy</h2>
+{if $totalPages == 0}
+	
 
-	{if $totalPages == 0}
-		<p>Zatiaľ neexistujú žiadne testy. Otestovať svoju tlačiareň môžete kliknutím na tlačidlo.</p>
-		{control nextForm}
+	<div class="w3-container" style="padding: 126px 16px 50px 16px ">
+	<h2 class="w3-xxlarge w3-border-bottom w3-section w3-padding-16 padding-left-64">Najlepšie testy</h2>
+	<p class="w3-center">Zatiaľ neexistujú žiadne testy. Otestovať svoju tlačiareň môžete kliknutím na tlačidlo Otestovať tlačiareň.</p>
+	</div>
+	<div class="w3-center" style='margin-bottom:0px'>
+		<div style="margin:auto; display:inline-block">{control nextForm}</div>
+	</div>
 	{else}
-
+		<div class="w3-container" style="padding: 126px 16px 50px 16px">
+		<h2 class="w3-xxlarge w3-border-bottom w3-section w3-padding-16 padding-left-64">Najlepšie testy</h2>
 		{for $i = 1; $i <= $totalPages; $i++}
 				
 			    {if $i == $page}
 			    	<div class="padding-l-r-32">
-					<table class="w3-table-all w3-small w3-hoverable">
-						<tr class="w3-hover-white">
-							<th>&nbsp;</th>
-							<th>Značka</th>
-							<th>Model</th>
-							<th>Rozdiel červenej (%)</th>
-							<th>Rozdiel zelenej (%)</th>
-							<th>Rozdiel modrej (%)</th>
-							<th>Rozdiel spolu (%)</th>
-							<th>Šírka vzoru</th>
-							<th>Dátum testu</th>
-							<th>Rozlíšenie tlačiarne</th>
-							<th>Rozlíšenie skenera</th>			
-						</tr>	
-						{for $j = 0; $j < count($tests) ; $j++ }
-							<tr>
-								<td class="w3-border-right">{(($page-1)*$itemsPP)+$j+1}</td>
-								<td>{$tests[$j]->producer}</td>
-								<td>{$tests[$j]->model}</td>
-							    <td>{$tests[$j]->dif_r}</td>
-							    <td>{$tests[$j]->dif_g}</td>
-							    <td>{$tests[$j]->dif_b}</td>
-							    <td>{$tests[$j]->sum}</td>
-							    <td>{$tests[$j]->width}</td>
-							    <td>{$tests[$j]->date_time->format('d.m.Y H:i:s')}</td>
-							    <td>{$tests[$j]->printer_res}</td>
-							    <td>{$tests[$j]->scanner_res}</td>
-							    	    
-							</tr>
-						{/for}				
-				</table>
+			    	{form tableForm}
+			    		<div class="w3-right" style="margin-bottom: 5px"> 
+			    		{input select}
+						{input clear}
+						{input filter}
+						</div>
+						<table class="w3-table-all w3-small w3-hoverable">
+							<tr class="w3-hover-white">
+								<th>&nbsp;</th>
+								<th class={$order == "producer" ? "va-sort-bold w3-hover-opacity" : "va_sort w3-hover-grey"}">
+									<a class="va-sort"  n:href="Stats:stats 1, producer,$order, $desc">Značka</a>
+								</th>
+								<th class={$order == "model" ? "va-sort-bold w3-hover-opacity" : "va_sort w3-hover-grey"}">
+									<a class="va-sort " n:href="Stats:stats 1, model,$order, $desc">Model</a>
+								</th>
+								<th class={$order == "dif_r" ? "va-sort-bold w3-hover-opacity" : "va_sort w3-hover-grey"}">
+									<a class="va-sort " n:href="Stats:stats 1, dif_r, $order, $desc">Rozdiel červenej (%)</a>
+								</th>
+								<th class={$order == "dif_g" ? "va-sort-bold w3-hover-opacity" : "va_sort w3-hover-grey"}">
+									<a class="va-sort " n:href="Stats:stats 1, dif_g, $order, $desc">Rozdiel zelenej (%)</a>
+								</th>
+								<th class={$order == "dif_b" ? "va-sort-bold w3-hover-opacity" : "va_sort w3-hover-grey"}">
+									<a class="va-sort " n:href="Stats:stats 1, dif_b, $order, $desc">Rozdiel modrej (%)</a>
+								</th>
+								<th class={$order == "sum" ? "va-sort-bold w3-hover-opacity" : "va_sort w3-hover-grey"}">
+									<a class="va-sort " n:href="Stats:stats 1, sum, $order, $desc">Rozdiel spolu (abs %)</a>
+								</th>
+								<th class={$order == "width" ? "va-sort-bold w3-hover-opacity" : "va_sort w3-hover-grey"}">
+									<a class="va-sort " n:href="Stats:stats 1, width, $order, $desc">Šírka vzoru (mm)</a>
+								</th>
+								<th class={$order == "date_time" ? "va-sort-bold w3-hover-opacity" : "va_sort w3-hover-grey"}">
+									<a class="va-sort " n:href="Stats:stats 1, date_time, $order, $desc">Dátum testu</a>
+								</th>
+								<th class={$order == "printer_res" ? "va-sort-bold w3-hover-opacity" : "va_sort w3-hover-grey"}">
+									<a class="va-sort " n:href="Stats:stats 1, printer_res, $order, $desc">Rozlíšenie tlačiarne (dpi)</a>
+								</th>
+								<th class={$order == "scanner_res" ? "va-sort-bold w3-hover-opacity" : "va_sort w3-hover-grey"}">
+									<a class="va-sort " n:href="Stats:stats 1, scanner_res, $order, $desc">Rozlíšenie skenera (dpi)</a>
+								</th>
+								<th>&nbsp;</th>		
+							</tr>	
+							{for $j = 0; $j < count($tests) ; $j++ }
+								<tr>
+									<td class="w3-border-right">{(($page-1)*$itemsPP)+$j+1}</td>
+									<td>{$tests[$j]->producer}</td>
+									<td>{$tests[$j]->model}</td>
+								    <td>{$tests[$j]->dif_r}</td>
+								    <td>{$tests[$j]->dif_g}</td>
+								    <td>{$tests[$j]->dif_b}</td>
+								    <td>{$tests[$j]->sum}</td>
+								    <td>{$tests[$j]->width}</td>
+								    <td>{$tests[$j]->date_time->format('d.m.Y H:i:s')}</td>
+								    <td>{$tests[$j]->printer_res}</td>
+								    <td>{$tests[$j]->scanner_res}</td>
+								    <td><input name="chcktest[]" type="checkbox" value="{$tests[$j]->test}" {if !is_null($filter)}{if in_array($tests[$j]->test, $filter)}checked{/}{/}></td>
+   
+								</tr>
+							{/for}				
+						</table>
+						
+					{/form}
 				</div>	
 		    {/if}
 		{/for}
-	{/if}
+	
 
 	</div>
 
@@ -55,25 +90,27 @@
 		  {if $page == 1}
 		  	<a href="#" class="w3-bar-item w3-button">&laquo;</a>
 		  {else}
-		  	<a n:href="Stats:stats $page-1, $totalPosts" class="w3-bar-item w3-button">&laquo;</a>
+		  	<a n:href="Stats:stats $page-1, $order, x, $desc" class="w3-bar-item w3-button">&laquo;</a>
 		  {/if}
 		  
 		  {for $i = 1; $i <= $totalPages; $i++}
 		  		{if $i == $page}
-		  			<a class="w3-bar-item w3-button w3-grey" n:href="Stats:stats $i, $totalPosts">{$i}</a>
+		  			<a class="w3-bar-item w3-button w3-grey" n:href="Stats:stats $i, $order, x, $desc">{$i}</a>
 		  		{else}
-		  			<a class="w3-bar-item w3-button" n:href="Stats:stats $i, $totalPosts">{$i}</a>
+		  			<a class="w3-bar-item w3-button" n:href="Stats:stats $i, $order, x, $desc">{$i}</a>
 		  		{/if}
 		  {/for}
 		 
 		  {if $page == $totalPages}
 		  	<a href="#" class="w3-bar-item w3-button">&raquo;</a>
 		  {else}
-		  	<a n:href="Stats:stats $page+1, $totalPosts" class="w3-bar-item w3-button">&raquo;</a>
+		  	<a n:href="Stats:stats $page+1, $order, x, $desc" class="w3-bar-item w3-button">&raquo;</a>
 		  {/if}
 		</div>
 	</div>
+	{/if}
 </div>
+
 
 
 

@@ -57,26 +57,26 @@ class Templatec291d302b9 extends Latte\Runtime\Template
 	{
 		extract($_args);
 ?>
-
-<div class="w3-container" style="padding: 150px 16px 0px 16px">
-	<h2 class="w3-xxlarge w3-border-bottom w3-section w3-padding-32 w3-animate-left padding-left-64">Zadajte potrebné informácie</h2>
-</div>
-	<p class="padding-left-64">* Označené povinné polia</p>
-	<div class="margin-left-64">
+<div style="min-height: 830px">
+	<div style="min-height: 790px">
+		<div class="w3-container" style="padding: 150px 16px 0px 16px">
+			<h2 class="w3-xxlarge w3-border-bottom w3-section w3-padding-32 w3-animate-left padding-left-64">Zadajte potrebné informácie</h2>
+		</div>
+			<p class="padding-left-64">* Označené povinné polia</p>
+			<div class="margin-left-64">
 <?php
-		/* line 10 */ $_tmp = $this->global->uiControl->getComponent("newSetForm");
+		/* line 11 */ $_tmp = $this->global->uiControl->getComponent("newSetForm");
 		if ($_tmp instanceof Nette\Application\UI\IRenderable) $_tmp->redrawControl(NULL, FALSE);
 		$_tmp->render();
 ?>
+			</div>
+		</div>
+	<div class="w3-panel">
+		<div class="w3-white w3-border ">
+		  <div id="myBar" class="w3-green" style="height:15px;width:66%"></div>
+		</div>
 	</div>
-
-<div class="w3-container" style="margin-top:60px"></div>
-
-
-<div class="w3-light-grey w3-border w3-margin-left w3-margin-right">
-  <div id="myBar" class="w3-green" style="height:24px;width:66%"></div>
 </div>
-<br>
 <?php
 	}
 

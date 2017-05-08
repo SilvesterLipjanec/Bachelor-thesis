@@ -13,7 +13,7 @@ application:
 
 session:
 	expiration: 14 days
-
+	autoStart: true
 
 services:
 	- App\Model\UserManager

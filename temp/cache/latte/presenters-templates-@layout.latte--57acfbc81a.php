@@ -54,15 +54,19 @@ class Template57acfbc81a extends Latte\Runtime\Template
 </head>
 
 <body>
+	<div class="w3-center" style="width:100%; min-height:200px; position: absolute; z-index: -10;">
 <?php
 		$iterations = 0;
 		foreach ($flashes as $flash) {
-			?>	<div<?php if ($_tmp = array_filter(['flash', $flash->type])) echo ' class="', LR\Filters::escapeHtmlAttr(implode(" ", array_unique($_tmp))), '"' ?>><?php
-			echo LR\Filters::escapeHtmlText($flash->message) /* line 50 */ ?></div>
+			?>		<div<?php if ($_tmp = array_filter(['flash', $flash->type])) echo ' class="', LR\Filters::escapeHtmlAttr(implode(" ", array_unique($_tmp))), '"' ?>><?php
+			echo LR\Filters::escapeHtmlText($flash->message) /* line 55 */ ?>
+
+		</div>
 <?php
 			$iterations++;
 		}
 ?>
+	</div>
 	
 
 	
@@ -88,7 +92,7 @@ class Template57acfbc81a extends Latte\Runtime\Template
 	function prepare()
 	{
 		extract($this->params);
-		if (isset($this->params['flash'])) trigger_error('Variable $flash overwritten in foreach on line 50');
+		if (isset($this->params['flash'])) trigger_error('Variable $flash overwritten in foreach on line 55');
 		Nette\Bridges\ApplicationLatte\UIRuntime::initialize($this, $this->parentName, $this->blocks);
 		
 	}
@@ -107,15 +111,22 @@ class Template57acfbc81a extends Latte\Runtime\Template
 			<a class="w3-text-green w3-xlarge">&</a>
 			<a class="w3-text-blue w3-xxlarge">Scan</a>
 		</div> 
-		<div class="w3-bar w3-deep-purple w3-card-2 w3-left-align">
-			<a class="w3-bar-item w3-button" href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Homepage:default")) ?>">Návod</a>
+		<div class="w3-bar w3-deep-purple w3-left-align">
+			<a class="w3-bar-item w3-button" href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Homepage:default")) ?>">Domov</a>
 			<a class="w3-bar-item w3-button" href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Homepage:download")) ?>">Otestovať tlačiareň</a>
-			<a class="w3-bar-item w3-button" href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Stats:stats")) ?>">Štatistiky</a>
-			<a class="w3-bar-item w3-button" href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Stats:find")) ?>">Vyhľadať tlačiareň</a>
+			<a class="w3-bar-item w3-button" href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Stats:stats", [1, 'sum'])) ?>">Štatistiky</a>
+			<a class="w3-bar-item w3-button" href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Stats:search", ['printer' => 'HP'])) ?>">Vyhľadať tlačiareň</a>
 <?php
 		if ($user->isLoggedIn()) {
-			?>				<a class="w3-bar-item w3-button" href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Stats:mytests")) ?>">Moje testy</a>
-				<a class="w3-bar-item w3-button w3-right" href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Sign:out")) ?>">Odhlásiť sa</a>
+			if ($user->getIdentity()->role == 'admin') {
+				?>					<a class="w3-bar-item w3-button" href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Stats:mysets", [1])) ?>">Správa testov</a>
+<?php
+			}
+			else {
+				?>					<a class="w3-bar-item w3-button" href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Stats:mysets", [1])) ?>">Moje testy</a>
+<?php
+			}
+			?>				<a class="w3-bar-item w3-button w3-right" href="<?php echo LR\Filters::escapeHtmlAttr($this->global->uiControl->link("Sign:out")) ?>">Odhlásiť sa</a>
 <?php
 		}
 		else {
@@ -136,7 +147,7 @@ class Template57acfbc81a extends Latte\Runtime\Template
 ?>
 	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 	<script src="https://nette.github.io/resources/js/netteForms.min.js"></script>
-	<script src="<?php echo LR\Filters::escapeHtmlAttr(LR\Filters::safeUrl($basePath)) /* line 59 */ ?>/js/main.js"></script>
+	<script src="<?php echo LR\Filters::escapeHtmlAttr(LR\Filters::safeUrl($basePath)) /* line 66 */ ?>/js/main.js"></script>
 	
 <?php
 	}
@@ -144,11 +155,10 @@ class Template57acfbc81a extends Latte\Runtime\Template
 
 	function blockFooter($_args)
 	{
-?>  <footer class="w3-container w3-deep-purple w3-center" style="width:100%;padding-top:16px; padding-bottom:40px">
+?>  <footer class="w3-container w3-deep-purple w3-center" style="width:100%;padding-top:16px; padding-bottom:20px">
 	  <p>Vysoké učení technické v Brne</p>
 	  <p>Autor: Silvester Lipjanec, 2017</p>
-	  <a class="fa fa-facebook-official w3-hover-opacity" href="https://www.facebook.com/silvesterl"></a>
-	 
+	  <p>E-mail: xlipja01@stud.fit.vutbr.cz</p>	 
   </footer>
 <?php
 	}

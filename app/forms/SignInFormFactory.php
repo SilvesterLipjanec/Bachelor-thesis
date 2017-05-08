@@ -5,7 +5,7 @@ namespace App\Forms;
 use Nette;
 use Nette\Application\UI\Form;
 use Nette\Security\User;
-
+use App\Model\DatabaseRepository;
 
 class SignInFormFactory
 {
@@ -16,12 +16,13 @@ class SignInFormFactory
 
 	/** @var User */
 	private $user;
+	private $database;
 
-
-	public function __construct(FormFactory $factory, User $user)
+	public function __construct(FormFactory $factory, User $user, DatabaseRepository $database)
 	{
 		$this->factory = $factory;
 		$this->user = $user;
+		$this->database = $database;
 	}
 
 
@@ -54,9 +55,26 @@ class SignInFormFactory
 		$form->onSuccess[] = function (Form $form, $values) use ($onSuccess) {
 			try {
 				$this->user->setExpiration($values->remember ? '14 days' : '20 minutes');
-				$this->user->login($values->username, $values->password);
-			} catch (Nette\Security\AuthenticationException $e) {
-				$form->addError('Zadané meno alebo heslo je nesprávne.');
+				$user = $this->database->findUserByName($values->username);
+				if($user['token'] != NULL)
+				{
+					throw new AccountNotActiveException;					
+				}
+				else
+				{
+					try { 
+						$this->user->login($values->username, $values->password);
+					}
+					catch (Nette\Security\AuthenticationException $e ) {
+						if($e->getCode() == Nette\Security\IAuthenticator::IDENTITY_NOT_FOUND)
+							$form['username']->addError($e->getMessage());
+						else
+							$form['password']->addError($e->getMessage());
+						return;
+					}
+				}
+			} catch (AccountNotActiveException $e) {
+				$form['username']->addError('Účet zatiaľ nebol aktivovaný');
 				return;
 			}
 			$onSuccess();
@@ -66,3 +84,5 @@ class SignInFormFactory
 	}
 
 }
+class AccountNotActiveException extends \Exception
+{}

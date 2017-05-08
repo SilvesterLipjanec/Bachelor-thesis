@@ -22,19 +22,18 @@ class HomepagePresenter extends BasePresenter
 	{
 		$this->database = $database;
 	}
-	public function renderDefault()
-	{
-		$this->template->anyVariable = 'any value';
-	}
+	
 	protected function createComponentUploadForm()
 	{ 
 	  
 	  $form = new Form;
 	  $form->addUpload("file")
+	  		->SetRequired('Prosím vyberte a uložte naskenovaný tlačový vzor.')
 			->setHtmlAttribute('class','w3-button w3-black w3-section');
 	  $form->addSubmit("back","Späť")
 			->setAttribute('class','w3-button w3-grey')
 			->setAttribute('style','width:49%')
+			->setValidationScope([])
 	        ->onClick[] = array($this,'goBack');
 	  $form->addSubmit("save", "Uložit")
 			->setAttribute('class','w3-button w3-grey')
@@ -135,17 +134,35 @@ class HomepagePresenter extends BasePresenter
 		    {
 		    	exec('rm '.$file_alg_pos);
 		    }
-		   if($this->getUser()->isLoggedIn())
+		    //nacitaj data zo suboru od analyzatora
+		   	$rgb = $this->database->readResultFromFile($file_txt_pos);
+		   	if($rgb == ERROR)
+			{	
+				$this->flashMessage('Nahraný farebný vzor sa nepodarilo analyzovať. Skúste vytvoriť nový test.');
+				$this->redirect('Homepage:default');
+				return;
+			}
+			exec('rm '.$file_txt_pos);
+		   	$r = $rgb['r'];
+			$g = $rgb['g'];
+			$b = $rgb['b'];
+			if($r === NULL or $g === NULL or $b === NULL )
+			{	
+				$this->flashMessage('Nahraný farebný vzor sa nepodarilo analyzovať. Skúste vytvoriť nový test.');
+				$this->redirect('Homepage:default');
+				return;
+			}
+		   	if($this->getUser()->isLoggedIn())
 		    { 	
 				$id_user = $this->getUser()->getIdentity()->id_user;
 				if(count($this->database->findTestSetForUser($id_user)) != 0)
-		    		$this->redirect("Homepage:testset", $this->getParameter('width'),$file_txt_pos);
+		    		$this->redirect("Homepage:testset", $this->getParameter('width'),$r,$g,$b);
 		    	else
-		    		$this->redirect("Homepage:newtestset",$this->getParameter('width'),$file_txt_pos);
+		    		$this->redirect("Homepage:newtestset",$this->getParameter('width'),$r,$g,$b);
 		    }
 		    else
 		    {
-		    	$this->redirect("Homepage:newtestset",$this->getParameter('width'),$file_txt_pos);
+		    	$this->redirect("Homepage:newtestset",$this->getParameter('width'),$r,$g,$b);
 		    }
 		}
 	    else //nepodporovany format suboru
@@ -159,10 +176,14 @@ class HomepagePresenter extends BasePresenter
 	  	$this->flashMessage('Súbor sa nepodarilo nahrať');
 	  }
 	}
-	public function renderTestset($width,$file)
+	public function renderTestset($width,$r,$g,$b)
 	{
 		$this->template->width = $width;
-		$this->template->file = $file;
+		$this->template->r = $r;
+		$this->template->g = $g;
+		$this->template->b = $b;
+
+
 	}
 	public function createComponentNextForm()
 	{	
@@ -228,12 +249,14 @@ class HomepagePresenter extends BasePresenter
 	}
 	public function createNewTestSet()
 	{	
-	 	$this->redirect('Homepage:newtestset',$this->getParameter('width'),$this->getParameter('file'));
+	 	$this->redirect('Homepage:newtestset',$this->getParameter('width'),$this->getParameter('r'),$this->getParameter('g'),$this->getParameter('b'));
 	}
-	public function renderNewtestset($width,$file)
+	public function renderNewtestset($width,$r,$g,$b)
 	{
 		$this->template->width = $width;
-		$this->template->file = $file;
+		$this->template->r = $r;
+		$this->template->g = $g;
+		$this->template->b = $b;
 	}
 	public function createComponentNewSetForm()
 	{
@@ -260,14 +283,14 @@ class HomepagePresenter extends BasePresenter
 			->setAttribute('style','width:150%');
 		;
 		$form->addText('printer_res')
-			->setAttribute('placeholder','Rozlíšenie tlačiarne')
+			->setAttribute('placeholder','Rozlíšenie tlačiarne (dpi)')
 			->setAttribute('class','w3-input w3-border')
 			->setAttribute('style','width:150%')
 			->SetRequired(FALSE)
 			->addRule(Form::INTEGER)
 			->addRule(Form::MIN,'Rozlíšenie tlačiarne musí byť kladné číslo.',0);
 		$form->addText('scanner_res')
-		    ->setAttribute('placeholder','Rozlíšenie skenera')
+		    ->setAttribute('placeholder','Rozlíšenie skenera (dpi)')
 			->setAttribute('class','w3-input w3-border')
 			->setAttribute('style','width:150%')
 			->SetRequired(FALSE)
@@ -327,7 +350,7 @@ class HomepagePresenter extends BasePresenter
 			->SetRequired(FALSE)
 		    ->addRule(Form::MAX_LENGTH, 'Vaša poznámka je príliš dlhá.', 4000);
 		$form->addText('printer_res')
-			->setAttribute('placeholder','Rozlíšenie tlačiarne')
+			->setAttribute('placeholder','Rozlíšenie tlačiarne (dpi)')
 			->setAttribute('class','w3-input w3-border')
 			->setAttribute('style','width:150%')
 			->SetRequired(FALSE)
@@ -335,7 +358,7 @@ class HomepagePresenter extends BasePresenter
 			->addRule(Form::MIN,'Rozlíšenie tlačiarne musí byť kladné číslo.',0)
 			->addRule(Form::MAX,'Rozlíšenie tlačiarne je príliš veľké.',32767);
 		$form->addText('scanner_res')
-			->setAttribute('placeholder','Rozlíšenie skenera')
+			->setAttribute('placeholder','Rozlíšenie skenera (dpi)')
 			->setAttribute('class','w3-input w3-border')
 			->setAttribute('style','width:150%')
 			->SetRequired(FALSE)

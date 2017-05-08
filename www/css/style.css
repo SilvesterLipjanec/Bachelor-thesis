@@ -26,7 +26,7 @@ div.flash {
 	background: #ff7f7f;
 	border: 1px solid #cc0000;
 	padding: 1em;
-	margin-top:620px;
+	margin-top:700px;
 	position: relative;
 	display: inline-block;
 	z-index: -10;
@@ -69,6 +69,27 @@ form .required label {
 }
 
 form .error {
+	padding:5px;
 	color: #D00;
+}
+
+
+th.va-sort {
+  
+  display: block; 
+    
+}
+th{
+	padding: 0 !important;
+}
+a.va-sort{
+	display: block;
+	padding: 8px;
 	font-weight: bold;
+	text-decoration: none !important;
+}
+
+th.va-sort-bold{
+  background-color: #C6C6C6;
+  
 }

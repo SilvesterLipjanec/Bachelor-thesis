@@ -184,7 +184,7 @@ class Container_9b8c16882a extends Nette\DI\Container
 	public function createService__25_App_Forms_SignInFormFactory()
 	{
 		$service = new App\Forms\SignInFormFactory($this->getService('24_App_Forms_FormFactory'),
-			$this->getService('security.user'));
+			$this->getService('security.user'), $this->getService('27_App_Model_DatabaseRepository'));
 		return $service;
 	}
 
@@ -195,7 +195,7 @@ class Container_9b8c16882a extends Nette\DI\Container
 	public function createService__26_App_Forms_SignUpFormFactory()
 	{
 		$service = new App\Forms\SignUpFormFactory($this->getService('24_App_Forms_FormFactory'),
-			$this->getService('28_App_Model_UserManager'));
+			$this->getService('28_App_Model_UserManager'), $this->getService('latte.templateFactory'));
 		return $service;
 	}
 
@@ -225,7 +225,8 @@ class Container_9b8c16882a extends Nette\DI\Container
 	 */
 	public function createServiceApplication__1()
 	{
-		$service = new App\Presenters\StatsPresenter($this->getService('27_App_Model_DatabaseRepository'));
+		$service = new App\Presenters\StatsPresenter($this->getService('27_App_Model_DatabaseRepository'),
+			$this->getService('session.session'));
 		$service->injectPrimary($this, $this->getService('application.presenterFactory'),
 			$this->getService('routing.router'), $this->getService('http.request'),
 			$this->getService('http.response'), $this->getService('session.session'),
@@ -265,7 +266,7 @@ class Container_9b8c16882a extends Nette\DI\Container
 	 */
 	public function createServiceApplication__4()
 	{
-		$service = new App\Presenters\SignPresenter;
+		$service = new App\Presenters\SignPresenter($this->getService('27_App_Model_DatabaseRepository'));
 		$service->injectPrimary($this, $this->getService('application.presenterFactory'),
 			$this->getService('routing.router'), $this->getService('http.request'),
 			$this->getService('http.response'), $this->getService('session.session'),
@@ -387,8 +388,8 @@ class Container_9b8c16882a extends Nette\DI\Container
 	 */
 	public function createServiceDatabase__default__connection()
 	{
-		$service = new Nette\Database\Connection('mysql:host=127.0.0.1;dbname=xlipja01', 'xlipja01',
-			'ala5cenbez', ['lazy' => TRUE]);
+		$service = new Nette\Database\Connection('mysql:host=127.0.0.1;dbname=xlipja01', 'silvester',
+			'aaa', ['lazy' => TRUE]);
 		$this->getService('tracy.blueScreen')->addPanel('Nette\Bridges\DatabaseTracy\ConnectionPanel::renderException');
 		Nette\Database\Helpers::createDebugPanel($service, TRUE, 'default');
 		return $service;
@@ -594,7 +595,7 @@ class Container_9b8c16882a extends Nette\DI\Container
 		$this->getService('http.response')->setHeader('X-Powered-By', 'Nette Framework');
 		$this->getService('http.response')->setHeader('Content-Type', 'text/html; charset=utf-8');
 		$this->getService('http.response')->setHeader('X-Frame-Options', 'SAMEORIGIN');
-		$this->getService('session.session')->exists() && $this->getService('session.session')->start();
+		$this->getService('session.session')->start();
 		Tracy\Debugger::$editorMapping = [];
 		Tracy\Debugger::setLogger($this->getService('tracy.logger'));
 		if ($tmp = $this->getByType("Nette\Http\Session", FALSE)) { $tmp->start(); Tracy\Debugger::dispatch(); };
