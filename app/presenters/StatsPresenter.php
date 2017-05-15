@@ -312,6 +312,13 @@ class StatsPresenter extends BasePresenter
 		$prod = $this->getParameter('printer');
 		$producer = $this->database->getProducers();
 		$models = $this->database->getModels($prod);
+		
+		if(is_null($prod))
+		{
+			$models =  $this->database->getModels(reset($producer));
+			
+		}
+		
 		$form->addSelect('printer','Značka tlačiarne:',$producer)
 			->setAttribute('class','w3-select w3-white w3-border')
 			->getControlPrototype()->OnChange('$(this).parent("form").submit()');
@@ -333,6 +340,8 @@ class StatsPresenter extends BasePresenter
 			$this->filterSearchEnabled = false;
 			$page = 1;
 		}
+
+
 		$this->template->printer = $printer;
 		$this->template->model = $model;
 		$this->template->order = $order;		
@@ -422,11 +431,11 @@ class StatsPresenter extends BasePresenter
 	public function createComponentTableForm()
 	{
 		$form = new Form;
-		$form->addSubmit('select', 'Vybrať')
+		$form->addSubmit('select', 'Filter')
 			->setAttribute('class',"w3-button w3-grey");
-		$form->addSubmit('filter', 'Filter')
+		$form->addSubmit('filter', 'Použiť')
 		->setAttribute('class',"w3-button w3-grey");
-		$form->addSubmit('clear', 'Vymazať')
+		$form->addSubmit('clear', 'Zrušiť')
 		->setAttribute('class',"w3-button w3-grey");
 		$form->onSuccess[] = function($form) {
 			if ($form->isSubmitted() === $form['clear']) {
@@ -454,12 +463,13 @@ class StatsPresenter extends BasePresenter
 
 			$data = $form->getHttpData();
 			$selected = isset($data['chcktest']) ? $data['chcktest'] : [];
+			
 			switch ($this->view) {
 					case 'stats':
 						$this->session->getSection('stats_filter')->tests = array_merge($selected, $this->session->getSection('stats_filter')->tests);
 						break;
 					case 'search':
-						$this->session->getSection('search_filter')->tests = array_merge($selected, $this->session->getSection('search_filter')->tests);
+						$this->template->filter = $this->session->getSection('search_filter')->tests = array_merge($selected, $this->session->getSection('search_filter')->tests);			
 						break;
 					case 'setdetail':
 
@@ -478,7 +488,7 @@ class StatsPresenter extends BasePresenter
 						break;
 					case 'search':
 						$this->filterSearchEnabled = true;
-						$this->redirect('this');
+						$this->redirect('this',$this->getParameter('printer'),$this->getParameter('model'),1);
 						break;
 					case 'setdetail':
 						$this->filterSetEnabled = true;

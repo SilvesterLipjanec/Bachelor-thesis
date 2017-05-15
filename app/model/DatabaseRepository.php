@@ -128,7 +128,7 @@ class DatabaseRepository
 		//exec('rm '.$file);
 		return $row_test->getPrimary();
 	}
-
+    
 	public function getTestResult($id)
 	{
 		return $this->database->table('Test')->where('id_test',$id)->fetch();

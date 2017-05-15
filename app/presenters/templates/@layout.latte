@@ -32,7 +32,7 @@
 			<a n:href = "Homepage:default" class="w3-bar-item w3-button">Domov</a>
 			<a n:href = "Homepage:download" class="w3-bar-item w3-button">Otestovať tlačiareň</a>
 			<a n:href = "Stats:stats 1, sum" class="w3-bar-item w3-button">Štatistiky</a>
-			<a n:href="Stats:search printer => HP" class="w3-bar-item w3-button">Vyhľadať tlačiareň</a>
+			<a n:href="Stats:search" class="w3-bar-item w3-button">Vyhľadať tlačiareň</a>
 			{if $user->isLoggedIn()}
 				{if $user->getIdentity()->role == 'admin'}
 					<a n:href = "Stats:mysets 1" class="w3-bar-item w3-button">Správa testov</a>

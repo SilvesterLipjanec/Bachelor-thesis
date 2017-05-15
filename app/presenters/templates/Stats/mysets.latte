@@ -1,0 +1,125 @@
+
+
+{block content}
+
+<div style="min-height: 830px">
+{if $totalPages == 0}
+	
+
+	<div class="w3-container" style="padding: 126px 16px 50px 16px ">
+	<h2 class="w3-xxlarge w3-border-bottom w3-section w3-padding-16 padding-left-64">Moje sady testov</h2>
+	<p class="w3-center">Zatiaľ nemáte žiadne testy. Otestovať svoju tlačiareň môžete kliknutím na tlačidlo Otestovať tlačiareň.</p>
+	</div>
+	<div class="w3-center" style='margin-bottom:0px'>
+		<div style="margin:auto; display:inline-block">{control nextForm}</div>
+	</div>
+{else}
+	<div class="w3-container" style="padding: 126px 16px 50px 16px">
+	{if $user->getIdentity()->role == 'admin'}
+		<h2 class="w3-xxlarge w3-border-bottom w3-section w3-padding-16 padding-left-64">Sady testov</h2>
+	{else}
+		<h2 class="w3-xxlarge w3-border-bottom w3-section w3-padding-16 padding-left-64">Moje sady testov</h2>
+	{/if}
+		{for $i = 1; $i <= $totalPages; $i++}
+				
+			    {if $i == $page}
+			    	<div class="padding-l-r-32">
+					<table class="w3-table-all w3-small w3-hoverable">
+						<tr class="w3-hover-white">
+							<th class={$order == "producer" ? "va-sort-bold w3-hover-opacity" : "va_sort w3-hover-grey"}">
+								<a class="va-sort"  n:href="Stats:mysets 1, producer,$order, $desc">Značka tlačiarne</a>
+							</th>
+							<th class={$order == "model" ? "va-sort-bold w3-hover-opacity" : "va_sort w3-hover-grey"}">
+								<a class="va-sort"  n:href="Stats:mysets 1, model,$order, $desc">Model tlačiarne</a>
+							</th>
+						   <th class={$order == "type" ? "va-sort-bold w3-hover-opacity" : "va_sort w3-hover-grey"}">
+								<a class="va-sort"  n:href="Stats:mysets 1, type,$order, $desc">Typ tlačiarne</a>
+							</th>
+							<th class={$order == "set_note" ? "va-sort-bold w3-hover-opacity" : "va_sort w3-hover-grey"}">
+								<a class="va-sort"  n:href="Stats:mysets 1, set_note,$order, $desc">Poznámka</a>
+							</th>						    
+						    {if $user->getIdentity()->role == 'admin'}
+						    	<th class={$order == "id_user" ? "va-sort-bold w3-hover-opacity" : "va_sort w3-hover-grey"}">
+									<a class="va-sort"  n:href="Stats:mysets 1, id_user,$order, $desc">Vytvoril</a>
+								</th>
+						    {/if}
+						    <th class="va-sort"><a class="va-sort">Počet testov</th>
+						    <th>&nbsp;</th>
+						    <th>&nbsp;</th>			
+						</tr>	
+						{foreach $sets as $set}
+						<tr>
+						    <td>{$set->producer}</td>
+						    <td>{$set->model}</td>
+						    <td>{$set->type}</td>
+						    <td>{$set->set_note}</td>						    
+						    {if $user->getIdentity()->role == 'admin'}
+						    	{if $userlogin[$set->id_set] != null}
+						    		<td>{$userlogin[$set->id_set]}</td>
+						    	{else}
+						    		<td>neregistrovaný</td>
+						    	{/if}
+						    	
+						    {/if}
+						    <td>{$cnt[$set->id_set]}</td>
+						    {if $cnt[$set->id_set] > 0}
+							    <td>
+							    	<a n:href="Stats:setdetail,$set->id_set">Detail</a>
+							    </td>
+							{else}
+								<td>&nbsp;</td>
+							{/if}
+							{if $set->id_set != 0}
+								<td>
+								   	<a n:href="Stats:deleteset,$set->id_set">Vymazať</a>
+								</td>
+							{else}
+								<td>&nbsp;</td>
+							{/if}
+							
+						</tr>
+						{/foreach}
+				</table>
+				</div>
+		    {/if}
+		{/for}
+	</div>
+
+ <div class="w3-center" style="margin-bottom:32px">
+	<div class="w3-bar">
+	  {if $page == 1}
+	  	<a href="#" class="w3-bar-item w3-button">&laquo;</a>
+	  {else}
+	  	<a n:href="Stats:mysets $page-1, $order, x, $desc" class="w3-bar-item w3-button">&laquo;</a>
+	  {/if}
+	  
+	  {for $i = 1; $i <= $totalPages; $i++}
+	  		{if $i == $page}
+	  			<a class="w3-bar-item w3-button w3-grey" n:href="Stats:mysets $i, $order, x, $desc">{$i}</a>
+	  		{else}
+	  			<a class="w3-bar-item w3-button" n:href="Stats:mysets $i, $order, x, $desc">{$i}</a>
+	  		{/if}
+	  {/for}
+	 
+	  {if $page == $totalPages}
+	  	<a href="#" class="w3-bar-item w3-button">&raquo;</a>
+	  {else}
+	  	<a n:href="Stats:mysets $page+1, $order, x, $desc" class="w3-bar-item w3-button">&raquo;</a>
+	  {/if}
+	</div>
+</div>
+{/if}
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+

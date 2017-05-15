@@ -18,10 +18,9 @@
 				{/form}
 			</div>
 		</div>
-		{if isset($tests[0])}
-				<h3 class="w3-border-top" style="padding-left:32px; padding-top:16px">Testy vytvorené na danej tlačiarni</h3>
+				
 				{for $i = 1; $i <= $totalPages; $i++}
-						
+					<h3 class="w3-border-top" style="padding-left:32px; padding-top:16px">Testy vytvorené na danej tlačiarni</h3>
 					    {if $i == $page}
 					    	<div class="padding-l-r-32">
 					    	{form tableForm}
@@ -77,8 +76,7 @@
 							{/form}
 							</div>
 						{/if}
-				{/for}
-		{/if}
+				{/for}	
 	</div>
 	{if isset($tests[0])}
 		<div class="w3-center" style="margin-bottom:16px">
