@@ -124,6 +124,7 @@ const char *HELPMSG =
 typedef struct params
 {
   char *filename;    /**< Názov vstupného súboru*/
+  int state;	     /**< Stavovy kod programu, odpoveda tstates. */
   int ecode;         /**< Chybovy kod programu, odpoveyýda tstates. */
   int width;
 } TParams;
@@ -304,7 +305,7 @@ Lines findVertPts(PPMImage *img)
 	int br = 0; 
 	int SC = img->width / CONSTW; //SC = start column
 	int SR = img->height / CONSTH; //SR = start row
-	int ER = img->height / ERC; //ER = end row
+	int ER = img->height; //img->height / ERC; //ER = end row
 	int EC = img->width - SC; //EC = end column
 	
 	//find point of first vertical line 	
@@ -615,9 +616,10 @@ int *findHorizLines(PPMImage*img, Point actH, int *Rcnt)
 {
 	MidNextInfo Hinf;	
 	MidNextInfo Vinf;
-	int ER = img->height / ERC; //ER = end row
+	int ER = img->height; //img->height / ERC; //ER = end row
 	int *horiz;
-
+	int lstR = 0;
+	int lstDif = 0;
 	if((horiz = (int *)malloc(sizeof(int*))) == NULL)
 	{
 		printECode(EALLOC);
@@ -630,7 +632,7 @@ int *findHorizLines(PPMImage*img, Point actH, int *Rcnt)
 	//hladaj dalsiu horizontalnu linu v smere y
 	while(actH.r < ER)
 	{
-
+		lstR = actH.r;
 		*Rcnt += 1;
 		if((horiz = (int *)realloc(horiz,*Rcnt*sizeof(int *))) == NULL)
 		{
@@ -641,8 +643,12 @@ int *findHorizLines(PPMImage*img, Point actH, int *Rcnt)
 		actH.r = Vinf.nextWhite;
 		horiz[*Rcnt-1] = Vinf.mid;
 		writePoint(img,Vinf.mid, actH.c);
-		actH.r = findNextVert(img,actH.r,actH.c ,ER);
-		
+		if(lstDif != 0)
+		{
+			ER = actH.r + lstDif*2; 
+		}
+		actH.r = findNextVert(img,actH.r,actH.c ,ER);		
+		lstDif = actH.r - lstR;
 	}
 	
 		
@@ -777,7 +783,7 @@ int main(int argc, char *argv[])
     	if(line.fst.r != line.lst.r) //farebný vzor nieje rovno, potrebné vyrovnanie
     	{
     		
-    		sprintf(alg_filename,"./data/alg_%s",pom_filename);
+    		sprintf(alg_filename,"../data/alg_%s",pom_filename);
     		//najdi uhol, ktory je potrebny na vyrovnanie obrazka
     		angle = findAngle(line);
     		    		
@@ -796,7 +802,7 @@ int main(int argc, char *argv[])
 		
     	vertIndex = findVertLines(image, line, &StHorPt, &Ccnt);  
     	horizIndex = findHorizLines(image, StHorPt, &Rcnt);
-		//writePPM("./data/analyzedImage.ppm",image);
+		writePPM("../data/analyzedImage.ppm",image);
  		if(!isNumLinesOk(Rcnt,Ccnt,params.width))
 		{
 			deallocMem(image);
@@ -819,7 +825,7 @@ int main(int argc, char *argv[])
  		int pocet = 0;
  		int br = 0;
  		pom_filename[strlen(pom_filename)-4] = 0;
- 		sprintf(vysl_filename,"./data/%s.txt",pom_filename);
+ 		sprintf(vysl_filename,"../data/%s.txt",pom_filename);
  		
 		file = fopen(vysl_filename, "wb");
 		
