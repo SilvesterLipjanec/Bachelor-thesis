@@ -616,10 +616,11 @@ int *findHorizLines(PPMImage*img, Point actH, int *Rcnt)
 {
 	MidNextInfo Hinf;	
 	MidNextInfo Vinf;
-	int ER = img->height; //img->height / ERC; //ER = end row
+	int ER = img->height;//img->height / ERC; //ER = end row
 	int *horiz;
+	int dif = 0;
 	int lstR = 0;
-	int lstDif = 0;
+
 	if((horiz = (int *)malloc(sizeof(int*))) == NULL)
 	{
 		printECode(EALLOC);
@@ -643,12 +644,13 @@ int *findHorizLines(PPMImage*img, Point actH, int *Rcnt)
 		actH.r = Vinf.nextWhite;
 		horiz[*Rcnt-1] = Vinf.mid;
 		writePoint(img,Vinf.mid, actH.c);
-		if(lstDif != 0)
+		if(dif != 0)
 		{
-			ER = actH.r + lstDif*2; 
+			ER = actH.r + dif*2; 
 		}
-		actH.r = findNextVert(img,actH.r,actH.c ,ER);		
-		lstDif = actH.r - lstR;
+		actH.r = findNextVert(img,actH.r,actH.c ,ER);
+
+		dif = actH.r - lstR;
 	}
 	
 		
@@ -783,7 +785,7 @@ int main(int argc, char *argv[])
     	if(line.fst.r != line.lst.r) //farebný vzor nieje rovno, potrebné vyrovnanie
     	{
     		
-    		sprintf(alg_filename,"../data/alg_%s",pom_filename);
+    		sprintf(alg_filename,"./data/alg_%s",pom_filename);
     		//najdi uhol, ktory je potrebny na vyrovnanie obrazka
     		angle = findAngle(line);
     		    		
@@ -802,7 +804,7 @@ int main(int argc, char *argv[])
 		
     	vertIndex = findVertLines(image, line, &StHorPt, &Ccnt);  
     	horizIndex = findHorizLines(image, StHorPt, &Rcnt);
-		writePPM("../data/analyzedImage.ppm",image);
+		//writePPM("../data/analyzedImage.ppm",image);
  		if(!isNumLinesOk(Rcnt,Ccnt,params.width))
 		{
 			deallocMem(image);
@@ -825,7 +827,7 @@ int main(int argc, char *argv[])
  		int pocet = 0;
  		int br = 0;
  		pom_filename[strlen(pom_filename)-4] = 0;
- 		sprintf(vysl_filename,"../data/%s.txt",pom_filename);
+ 		sprintf(vysl_filename,"./data/%s.txt",pom_filename);
  		
 		file = fopen(vysl_filename, "wb");
 		
