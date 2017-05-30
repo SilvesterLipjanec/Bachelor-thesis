@@ -531,9 +531,9 @@ int findNextHoriz(PPMImage *img, int r, int c , int EC)
  * @param c Index stĺpca počiatku hľadania
  * @return Index riadku nasledujúcej čiary
  */
-int findNextVert(PPMImage *img, int r, int c, int ER)
+int findNextVert(PPMImage *img, int r, int c, int ER, int ERI)
 {	
-	while(!isBlack(img,r,c) && r < ER)
+	while(!isBlack(img,r,c) && r < ER && r < ERI)
 	{
 		r++;
 	}
@@ -620,7 +620,7 @@ int *findHorizLines(PPMImage*img, Point actH, int *Rcnt)
 	int *horiz;
 	int dif = 0;
 	int lstR = 0;
-
+	int ERI = ER;
 	if((horiz = (int *)malloc(sizeof(int*))) == NULL)
 	{
 		printECode(EALLOC);
@@ -631,7 +631,7 @@ int *findHorizLines(PPMImage*img, Point actH, int *Rcnt)
 	actH.c = Hinf.mid;
 
 	//hladaj dalsiu horizontalnu linu v smere y
-	while(actH.r < ER)
+	while(actH.r < ERI && actH.r < ER)
 	{
 		lstR = actH.r;
 		*Rcnt += 1;
@@ -648,7 +648,7 @@ int *findHorizLines(PPMImage*img, Point actH, int *Rcnt)
 		{
 			ER = actH.r + dif*2; 
 		}
-		actH.r = findNextVert(img,actH.r,actH.c ,ER);
+		actH.r = findNextVert(img,actH.r,actH.c ,ER, ERI);
 
 		dif = actH.r - lstR;
 	}
